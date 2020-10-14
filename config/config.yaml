@@ -1,0 +1,50 @@
+# device: "cuda" | "cpu"
+device: cuda
+debug_mode: true
+
+# hyperparameters and model type
+# model:            "ternary"
+# batch_size:       literal meaning
+# tau:              number of local iterations
+# momentum:         momentum settings for the optimizer
+model: "ternary"
+total_epoch: 10
+batch_size: 128
+lr: 0.01
+momentum: 0
+weight_decay: 1.e-4
+
+# full precision model counterpart
+full_model: "type1"
+full_weight_dir: ""
+
+# Simulation dataset configurations
+# test_data_dir : the directory to the testDataset
+# train_data_dir: the directory to the trainDataset
+# sample_size:   the size of one sample [height x width/num_of_features]
+# classes:      the number of classes
+record_dir:     ../This{}.dat
+test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/MNIST/test.dat
+train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/MNIST/train.dat
+# test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/test.dat
+# train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/train.dat
+sample_size:
+- 28
+- 28
+channels: 1
+classes: 10
+
+# record_dir:     ../This{}.dat
+# test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/cifar-10-python/test.dat
+# train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/cifar-10-python/train.dat
+# sample_size:
+# - 32
+# - 32
+# channels: 3
+# classes: 10
+
+
+# Log configurations
+log_iters:   200
+log_level:   "INFO"
+log_file:    "./train.log"
