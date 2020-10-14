@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 
 # My Libraries
 from deeplearning import nn_registry
-from deeplearning.qnn import init_theta
+from deeplearning.qnn import init_latent_params
 from deeplearning.real_weights import init_weights
 from deeplearning.dataset import CustomizedDataset
 
@@ -43,7 +43,6 @@ def init_logger(config):
 
     return logger
 
-
 def save_record(config, record):
     record["cumulated_KB"].pop(0)
     current_path = os.path.dirname(__file__)
@@ -57,16 +56,20 @@ def save_record(config, record):
 
 def test_accuracy(model, test_dataset, device="cuda"):
     with torch.no_grad():
-        server_dataset = CustomizedDataset(test_dataset["images"], test_dataset["labels"])
+        dataset = CustomizedDataset(test_dataset["images"], test_dataset["labels"])
         num_samples = test_dataset["labels"].shape[0]
+        accuracy = 0
 
         # Full Batch testing
-        testing_data_loader = DataLoader(dataset=server_dataset, batch_size=len(server_dataset))
-        for samples in testing_data_loader:
+        dividers = 2
+        batch_size = int(len(dataset)/dividers)
+        testing_data_loader = DataLoader(dataset=dataset, batch_size=batch_size)
+        for i, samples in enumerate(testing_data_loader):
             results = model(samples["image"].to(device))
+            predicted_labels = torch.argmax(results, dim=1).detach().cpu().numpy()
+            accuracy += np.sum(predicted_labels == test_dataset["labels"][i*batch_size: (i+1)*batch_size]) / num_samples
         
-        predicted_labels = torch.argmax(results, dim=1).detach().cpu().numpy()
-        accuracy = np.sum(predicted_labels == test_dataset["labels"]) / num_samples
+        accuracy /= batch_size
 
     return accuracy
 
@@ -74,12 +77,12 @@ def test_accuracy(model, test_dataset, device="cuda"):
 def train_loss(model, train_dataset, device="cuda"):
     with torch.no_grad():
         criterion = nn.CrossEntropyLoss()
-        server_dataset = CustomizedDataset(train_dataset["images"], train_dataset["labels"])
+        dataset = CustomizedDataset(train_dataset["images"], train_dataset["labels"])
         loss = torch.tensor(0.)
 
-        dividers = 4
-        batch_size = int(len(server_dataset)/dividers)
-        data_loader = DataLoader(dataset=server_dataset, batch_size=batch_size)
+        dividers = 16
+        batch_size = int(len(dataset)/dividers)
+        data_loader = DataLoader(dataset=dataset, batch_size=batch_size)
         counter = 0
         for samples in data_loader:
             results = model(samples["image"].to(device))
@@ -106,8 +109,8 @@ def init_model(config):
     else:
         full_model.apply(init_weights)
 
-    init_theta(sto_qnn, full_model)
-
+    init_latent_params(sto_qnn, full_model)
+    sto_qnn = sto_qnn.to(config.device)
     return sto_qnn
 
 def init_record(config, model):

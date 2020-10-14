@@ -9,8 +9,7 @@ class StoQNN(ABC, nn.Module):
         for module in self.modules():
             if not hasattr(module, "weight"):
                 continue
-            print(module.weight.latent_param.is_leaf)
-            # yield module.weight.latent_param
+            yield module.weight.latent_param
 
 from deeplearning.qnn_blocks import *
 from deeplearning.qnn import *

@@ -16,7 +16,7 @@ def train(model, config, logger):
     
     criterion = nn.CrossEntropyLoss()
     model.latent_parameters()
-    # optimizer = torch.optim.Adam(model.latent_parameters(), lr=config.lr, weight_decay=config.weight_decay)
+    optimizer = torch.optim.Adam(model.latent_parameters(), lr=config.lr, weight_decay=config.weight_decay)
 
     # before optimization, report the result first 
     with torch.no_grad():
@@ -28,7 +28,7 @@ def train(model, config, logger):
         logger.info("Train loss {:.4f}".format(loss))
         logger.info("")
 
-    for epoch in range(config.epoch):
+    for epoch in range(config.total_epoch):
         for iteration, sample in enumerate(train_dataloader):
             image = sample["image"].to(device)
             label = sample["label"].to(device)
@@ -43,7 +43,7 @@ def train(model, config, logger):
             # record the test accuracy
             if iteration % config.log_iters == 0:
                 with torch.no_grad():
-                    test_acc = test_acc(model, dataset["test_data"], device=config.device)
+                    test_acc = test_accuracy(model, dataset["test_data"], device=config.device)
                 
                 logger.info("Test accuracy {:.4f}".format(test_acc))
 

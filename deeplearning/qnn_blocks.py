@@ -14,20 +14,23 @@ class TernaryConv2d(nn.Conv2d):
     def __init__(self, *kargs, **kwargs):
         super(TernaryConv2d, self).__init__(*kargs, **kwargs)
         self.latentdim = 3
-        self._init_theta()
+        self._init_latent_param()
+        self.weight.requires_grad = False
+        self.bias.requires_grad = False
 
-    def _init_theta(self):
+    def _init_latent_param(self):
         """Initialize the placeholders for the multinomial distribution paramters.
         """
         # initialize the latent variable
         weight_shape = torch.tensor(self.weight.shape).tolist()
         weight_shape.append(3)
         self.weight.latent_param = torch.zeros(weight_shape, requires_grad=True)
-    
+
     def _apply(self, fn):
         # super(TernaryConv2d, self)._apply(fn)
-        self.weight.latent_param = fn(self.weight.latent_param)
-        
+        self.weight.latent_param.data = fn(self.weight.latent_param.data)
+        self.bias.data = fn(self.bias.data)
+
         return self
 
     def forward(self, input):
@@ -52,9 +55,11 @@ class TernaryLinear(nn.Linear):
     def __init__(self, *kargs, **kwargs):
         super(TernaryLinear, self).__init__(*kargs, **kwargs)
         self.latentdim = 3
-        self._init_theta()
+        self._init_latent_param()
+        self.weight.requires_grad = False
+        self.bias.requires_grad = False
 
-    def _init_theta(self):
+    def _init_latent_param(self):
         """Initialize the placeholders for the multinomial distribution paramters.
         """
         # initialize the latent variable
@@ -63,9 +68,10 @@ class TernaryLinear(nn.Linear):
         self.weight.latent_param = torch.zeros(weight_shape, requires_grad=True)
 
     def _apply(self, fn):
-        # super(TernaryLinear, self)._apply(fn)
-        self.weight.latent_param = fn(self.weight.latent_param)
-        
+        # super(TernaryConv2d, self)._apply(fn)
+        self.weight.latent_param.data = fn(self.weight.latent_param.data)
+        self.bias.data = fn(self.bias.data)
+
         return self
 
     def forward(self, input):

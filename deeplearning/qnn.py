@@ -19,18 +19,22 @@ class TernaryNeuralNet(StoQNN):
         self.mp1= nn.MaxPool2d(kernel_size=2, stride=2)
         self.conv2 = TernaryConv2d(32, 64, kernel_size=5)
         self.mp2= nn.MaxPool2d(kernel_size=2, stride=2)
-        self.fc1 = TernaryLinear(512, out_dims)
+        self.fc1 = TernaryLinear(1024, 512)
+        self.fc2 = TernaryLinear(512, out_dims)
 
     # 32C3 - MP2 - 64C3 - Mp2 - 512FC - SM10c
     def forward(self, x):
-        x = x.view(x.shape[0], self.input_size, self.input_size, self.input_size)
+        x = x.view(x.shape[0], self.in_channels, self.input_size, self.input_size)
         x = F.relu(self.conv1(x))
+        x = self.mp1(x)
         x = F.relu(self.conv2(x))
+        x = self.mp2(x)
         x = x.view(x.shape[0], -1)
-        x = self.fc1(x)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
         return x
 
-def init_theta(model, ref_model, **kwargs):
+def init_latent_params(model, ref_model, **kwargs):
     """Initialize the multinomial distribution parameters. 
     theta_0 = Pr(w=0) = sigmoid(a) = p_max - (p_max - p_min)|w|, 
     theta_1 = Pr(w=1) = sigmoid(b) = 0.5*(1 + |w|/(1-Pr(w=0))) * Pr(w!=0) = 0.5*((1-theta_0) + |w|)
@@ -66,8 +70,8 @@ def init_theta(model, ref_model, **kwargs):
         sigmoid_b = 0.5*((1 - sigmoid_a) + abs_normalized_w)
         sigmoid_b = torch.clamp(sigmoid_b, p_min, p_max)
 
-        module.weight.latent_param[..., 0] = torch.log(-1 + 1/(1 - sigmoid_a))
-        module.weight.latent_param[..., 1] = torch.log(-1 + 1/(1 - sigmoid_b))
+        module.weight.latent_param[..., 0].data = torch.log(-1 + 1/(1 - sigmoid_a))
+        module.weight.latent_param[..., 1].data = torch.log(-1 + 1/(1 - sigmoid_b))
 
 
 

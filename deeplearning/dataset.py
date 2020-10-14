@@ -11,8 +11,8 @@ class CustomizedDataset(Dataset):
     def __init__(self, images, labels):
         self.images = self._normalize(images)
         self.labels = (labels).astype(np.int64)
-        self.images = torch.from_numpy(images)
-        self.labels = torch.from_numpy(labels)
+        self.images = torch.from_numpy(self.images)
+        self.labels = torch.from_numpy(self.labels)
 
         self.num_samples = images.shape[0]
 
