@@ -20,12 +20,15 @@ class TernaryConv2d(nn.Conv2d):
         """Initialize the placeholders for the multinomial distribution paramters.
         """
         # initialize the latent variable
-        latent_param = torch.zeros_like(self.weight.data)
-        latent_param = latent_param[..., None]
-        latent_param = torch.repeat_interleave(latent_param, 2, dim=-1)
-
-        latent_param.requires_grad = True
-        self.weight.latent_param = latent_param.clone()
+        weight_shape = torch.tensor(self.weight.shape).tolist()
+        weight_shape.append(3)
+        self.weight.latent_param = torch.zeros(weight_shape, requires_grad=True)
+    
+    def _apply(self, fn):
+        # super(TernaryConv2d, self)._apply(fn)
+        self.weight.latent_param = fn(self.weight.latent_param)
+        
+        return self
 
     def forward(self, input):
         theta = torch.sigmoid(self.weight.latent_param)
@@ -55,12 +58,15 @@ class TernaryLinear(nn.Linear):
         """Initialize the placeholders for the multinomial distribution paramters.
         """
         # initialize the latent variable
-        latent_param = torch.zeros_like(self.weight.data)
-        latent_param = latent_param[..., None]
-        latent_param = torch.repeat_interleave(latent_param, 2, dim=-1)
+        weight_shape = torch.tensor(self.weight.shape).tolist()
+        weight_shape.append(3)
+        self.weight.latent_param = torch.zeros(weight_shape, requires_grad=True)
 
-        latent_param.requires_grad = True
-        self.weight.latent_param = latent_param.clone()
+    def _apply(self, fn):
+        # super(TernaryLinear, self)._apply(fn)
+        self.weight.latent_param = fn(self.weight.latent_param)
+        
+        return self
 
     def forward(self, input):
         theta = torch.sigmoid(self.weight.latent_param)

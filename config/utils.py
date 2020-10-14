@@ -70,6 +70,7 @@ def test_accuracy(model, test_dataset, device="cuda"):
 
     return accuracy
 
+
 def train_loss(model, train_dataset, device="cuda"):
     with torch.no_grad():
         criterion = nn.CrossEntropyLoss()
@@ -88,6 +89,7 @@ def train_loss(model, train_dataset, device="cuda"):
 
     return loss.item()
 
+
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
@@ -95,19 +97,18 @@ def count_parameters(model):
 def init_model(config):
     # initialize the model
     sample_size = config.sample_size[0] * config.sample_size[1]
-    full_model = nn_registry[config.full_model](in_dims=sample_size*config.in_channels, in_channels=config.in_channels)
-    sto_qnn = nn_registry[config.model](in_dims=sample_size*config.in_channels, in_channels=config.in_channels)
+    full_model = nn_registry[config.full_model](in_dims=sample_size*config.channels, in_channels=config.channels)
+    sto_qnn = nn_registry[config.model](in_dims=sample_size*config.channels, in_channels=config.channels)
     
     if os.path.exists(config.full_weight_dir):
-        full_model.apply(init_weights)
-    else:
         state_dict = torch.load(config.full_weight_dir)
         full_model.load_state_dict(state_dict)
+    else:
+        full_model.apply(init_weights)
 
     init_theta(sto_qnn, full_model)
 
     return sto_qnn
-
 
 def init_record(config, model):
     record = {}

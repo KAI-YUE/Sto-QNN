@@ -7,7 +7,7 @@ import torch.nn.functional as F
 
 # My Libraries
 from deeplearning import StoQNN
-from qnn_blocks import TernaryConv2d, TernaryLinear
+from deeplearning.qnn_blocks import TernaryConv2d, TernaryLinear
 
 class TernaryNeuralNet(StoQNN):
     def __init__(self, in_dims, in_channels, out_dims=10):
@@ -48,10 +48,14 @@ def init_theta(model, ref_model, **kwargs):
         p_min = torch.tensor(0.05)
 
     ref_state_dict = ref_model.state_dict()
-
-    for module_name, module in model.named_modules():
+    named_modules = model.named_modules()
+    next(named_modules)
+    for module_name, module in named_modules:
+        if not hasattr(module, "weight"):
+            continue
+        
         # normalize the weight
-        ref_w = ref_state_dict[module_name + "weight"]
+        ref_w = ref_state_dict[module_name + ".weight"]
         normalized_w = ref_w / ref_w.std()
         abs_normalized_w = normalized_w.abs()
 

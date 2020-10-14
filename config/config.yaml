@@ -24,8 +24,8 @@ full_weight_dir: ""
 # sample_size:   the size of one sample [height x width/num_of_features]
 # classes:      the number of classes
 record_dir:     ../This{}.dat
-test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/MNIST/test.dat
-train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/MNIST/train.dat
+test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/test.dat
+train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/train.dat
 # test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/test.dat
 # train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/train.dat
 sample_size:
