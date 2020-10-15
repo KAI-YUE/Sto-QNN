@@ -1,6 +1,6 @@
 # device: "cuda" | "cpu"
 device: cuda
-debug_mode: true
+mode: 0
 
 # hyperparameters and model type
 # model:            "ternary"
@@ -9,14 +9,14 @@ debug_mode: true
 # momentum:         momentum settings for the optimizer
 model: "ternary"
 total_epoch: 10
-batch_size: 128
+batch_size: 256
 lr: 0.01
 momentum: 0
-weight_decay: 1.e-4
+weight_decay: 1.e-11
 
 # full precision model counterpart
 full_model: "type1"
-full_weight_dir: ""
+full_weight_dir: "full_model.pth"
 
 # Simulation dataset configurations
 # test_data_dir : the directory to the testDataset
@@ -45,6 +45,6 @@ classes: 10
 
 
 # Log configurations
-log_iters:   200
+log_iters:   100
 log_level:   "INFO"
 log_file:    "./train.log"

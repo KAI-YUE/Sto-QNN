@@ -61,15 +61,15 @@ def test_accuracy(model, test_dataset, device="cuda"):
         accuracy = 0
 
         # Full Batch testing
-        dividers = 2
+        dividers = 100
         batch_size = int(len(dataset)/dividers)
         testing_data_loader = DataLoader(dataset=dataset, batch_size=batch_size)
         for i, samples in enumerate(testing_data_loader):
             results = model(samples["image"].to(device))
             predicted_labels = torch.argmax(results, dim=1).detach().cpu().numpy()
-            accuracy += np.sum(predicted_labels == test_dataset["labels"][i*batch_size: (i+1)*batch_size]) / num_samples
+            accuracy += np.sum(predicted_labels == test_dataset["labels"][i*batch_size: (i+1)*batch_size]) / results.shape[0]
         
-        accuracy /= batch_size
+        accuracy /= dividers
 
     return accuracy
 
@@ -80,7 +80,7 @@ def train_loss(model, train_dataset, device="cuda"):
         dataset = CustomizedDataset(train_dataset["images"], train_dataset["labels"])
         loss = torch.tensor(0.)
 
-        dividers = 16
+        dividers = 100
         batch_size = int(len(dataset)/dividers)
         data_loader = DataLoader(dataset=dataset, batch_size=batch_size)
         counter = 0
@@ -97,13 +97,14 @@ def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
-def init_model(config):
+def init_qnn(config):
     # initialize the model
     sample_size = config.sample_size[0] * config.sample_size[1]
     full_model = nn_registry[config.full_model](in_dims=sample_size*config.channels, in_channels=config.channels)
     sto_qnn = nn_registry[config.model](in_dims=sample_size*config.channels, in_channels=config.channels)
     
     if os.path.exists(config.full_weight_dir):
+        print("--- Load pre-trained model. ---")
         state_dict = torch.load(config.full_weight_dir)
         full_model.load_state_dict(state_dict)
     else:
@@ -112,6 +113,14 @@ def init_model(config):
     init_latent_params(sto_qnn, full_model)
     sto_qnn = sto_qnn.to(config.device)
     return sto_qnn
+
+def init_full_model(config):
+    # initialize the model
+    sample_size = config.sample_size[0] * config.sample_size[1]
+    full_model = nn_registry[config.full_model](in_dims=sample_size*config.channels, in_channels=config.channels)
+    full_model.apply(init_weights)
+    full_model = full_model.to(config.device)
+    return full_model
 
 def init_record(config, model):
     record = {}
