@@ -87,8 +87,8 @@ class CompleteTernaryNeuralNet(StoQNN):
 
 def init_latent_params(model, ref_model, **kwargs):
     """Initialize the multinomial distribution parameters. 
-    theta_0 = Pr(w=0) = sigmoid(a) = p_max - (p_max - p_min)|w|, 
-    theta_1 = Pr(w=1) = sigmoid(b) = 0.5*(1 + w/(1-Pr(w=0))) * Pr(w!=0) = 0.5*((1-theta_0) + |w|)
+    theta_0 = Pr(w=-1) 
+    theta_1 = Pr(w=1)
 
     Args:
         ref_model (nn.Module):     the reference floating point model
@@ -116,20 +116,20 @@ def init_latent_params(model, ref_model, **kwargs):
         ref_w = ref_state_dict[module_name + ".weight"]
         # normalized_w = ref_w / ref_w.std()
         # abs_normalized_w = normalized_w.abs()
+        # normalized_w = 2*(ref_w - ref_w.min())/(ref_w.max() - ref_w.min()) - 1
         normalized_w = ref_w
-        abs_normalized_w = normalized_w.abs()
 
         # take the logits of the probability, i.e., log(y/(1-y)) = log(-1+1/(1-y))
-        prob_0 = p_max - (p_max - p_min) * abs_normalized_w
-        prob_0 = torch.clamp(prob_0, p_min, p_max)
-        prob_1 = 0.5*((1 - prob_0) + normalized_w)
-        prob_1 = torch.clamp(prob_1 , p_min, p_max)
+        prob_minus_one = p_min - p_max*normalized_w
+        prob_minus_one = torch.clamp(prob_minus_one, p_min, p_max)
+        prob_one = p_min  + p_max*normalized_w
+        prob_one = torch.clamp(prob_one , p_min, p_max)
 
-        double_prob_0_minus_one = 2*prob_0 - 1
-        double_prob_1_minus_one = 2*prob_1 - 1
+        activated_a = 2*prob_minus_one - 1
+        activated_b = 2*prob_one - 1
 
-        module.weight.latent_param.data[..., 0] = 0.5*torch.log((1 + double_prob_0_minus_one)/(1 - double_prob_0_minus_one))
-        module.weight.latent_param.data[..., 1] = 0.5*torch.log((1 + double_prob_1_minus_one)/(1 - double_prob_1_minus_one))
+        module.weight.latent_param.data[..., 0] = 0.5*torch.log((1 + activated_a)/(1 - activated_a))
+        module.weight.latent_param.data[..., 1] = 0.5*torch.log((1 + activated_b)/(1 - activated_b))
 
 
 def init_bnn_params(model, ref_model):
@@ -145,6 +145,8 @@ def init_bnn_params(model, ref_model):
     next(named_modules)
     for module_name, module in named_modules:
         if not hasattr(module, "weight"):
+            continue
+        elif not hasattr(module.weight, "latent_param"):
             continue
             
         # normalize the weight

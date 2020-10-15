@@ -7,17 +7,18 @@ mode: 0
 # batch_size:       literal meaning
 # tau:              number of local iterations
 # momentum:         momentum settings for the optimizer
-# model: "binary"
-model: "complete_ternary"
+# qnn_model: "binary"
+qnn_model: "ternary"
 total_epoch: 20
 batch_size: 256
-lr: 0.01
+lr: 0.001
 momentum: 0
 weight_decay: 1.e-11
 
+
 # full precision model counterpart
 full_model: "type1"
-full_weight_dir: "full_model_0.9203.pth"
+full_weight_dir: "checkpoints/full_model_0.984.pth"
 
 # Simulation dataset configurations
 # test_data_dir : the directory to the testDataset

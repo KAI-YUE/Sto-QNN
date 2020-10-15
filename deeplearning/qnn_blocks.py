@@ -37,9 +37,8 @@ class TernaryConv2d(nn.Conv2d):
     def forward(self, input):
         # theta = torch.sigmoid(self.weight.latent_param)
         theta = 0.5*torch.tanh(self.weight.latent_param) + 0.5
-        theta_ = -0.5*theta[..., 0] - 0.5*theta[..., 1]
-        mu = theta[..., 1]  - theta_
-        sigma_square = theta[..., 1]  + theta_ - mu**2
+        mu = theta[..., 1]  - theta[..., 0]
+        sigma_square = theta[..., 1]  + theta[..., 0] - mu**2
 
         mu = F.conv2d(input, mu, self.bias, 
                         self.stride, self.padding, self.dilation)
@@ -83,9 +82,8 @@ class TernaryLinear(nn.Linear):
     def forward(self, input):
         # theta = torch.sigmoid(self.weight.latent_param)
         theta = 0.5*torch.tanh(self.weight.latent_param) + 0.5
-        theta_ = -0.5*theta[..., 0] - 0.5*theta[..., 1]
-        mu = theta[..., 1]  - theta_
-        sigma_square = theta[..., 1]  + theta_ - mu**2
+        mu = theta[..., 1]  - theta[..., 0]
+        sigma_square = theta[..., 1]  + theta[..., 0] - mu**2
 
         mu = F.linear(input, mu, self.bias)
         sigma_square = F.linear(input**2, sigma_square)
@@ -109,6 +107,8 @@ class BinaryConv2d(nn.Conv2d):
     def __init__(self, *kargs, **kwargs):
         super(BinaryConv2d, self).__init__(*kargs, **kwargs)
         self.latentdim = 2
+        self.bias.requires_grad = False
+        self.weight.latent_param = "overlap_with_weight"
     
     def forward(self, input):
         # theta = activate_fun(w) = 1/2*tanh(w) + 1/2
@@ -131,6 +131,8 @@ class BinaryLinear(nn.Linear):
     def __init__(self, *kargs, **kwargs):
         super(BinaryLinear, self).__init__(*kargs, **kwargs)
         self.latentdim = 2
+        self.bias.requires_grad = False
+        self.weight.latent_param = "overlap_with_weight"
 
     def forward(self, input):
         # theta = activate_fun(w) = 1/2*tanh(w) + 1/2

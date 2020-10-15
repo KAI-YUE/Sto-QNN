@@ -45,10 +45,12 @@ def train_qnn(model, config, logger):
             if iteration % config.log_iters == 0:
                 with torch.no_grad():
                     loss = train_loss(model, dataset["train_data"], device=config.device)
-                    test_acc = test_accuracy(model, dataset["test_data"], device=config.device)
+                    test_acc = test_accuracy(model, dataset["test_data"], config.device)
+                    sampled_qnn_acc = test_qnn_accuracy(model, dataset["test_data"], config.device, config)
 
                 logger.info("Train loss {:.4f}".format(loss))
                 logger.info("Test accuracy {:.4f}".format(test_acc))
+                logger.info("Sampled QNN Test accuracy {:.4f}".format(sampled_qnn_acc))
 
 def train_bnn(model, config, logger):
     device = config.device
@@ -57,7 +59,7 @@ def train_bnn(model, config, logger):
                                   batch_size=config.batch_size)
     
     criterion = nn.CrossEntropyLoss()
-    optimizer = torcsh.optim.Adam(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
+    optimizer = torch.optim.Adam(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
     # optimizer = torch.optim.SGD(model.parameters(), lr=config.lr)
 
     # before optimization, report the result first 
@@ -88,9 +90,11 @@ def train_bnn(model, config, logger):
                 with torch.no_grad():
                     loss = train_loss(model, dataset["train_data"], device=config.device)
                     test_acc = test_accuracy(model, dataset["test_data"], device=config.device)
+                    sampled_bnn_acc = test_bnn_accuracy(model, dataset["test_data"], config.device, config)
 
                 logger.info("Train loss {:.4f}".format(loss))
                 logger.info("Test accuracy {:.4f}".format(test_acc))
+                logger.info("Sampled BNN accuracy {:.4f}".format(sampled_bnn_acc))
 
 def train_full_model(model, config, logger):
     device = config.device
