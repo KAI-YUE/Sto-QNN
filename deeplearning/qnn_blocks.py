@@ -35,9 +35,9 @@ class TernaryConv2d(nn.Conv2d):
         return self
 
     def forward(self, input):
-        theta = torch.sigmoid(self.weight.latent_param)
-        ones_tensor = torch.ones_like(theta[..., 0])
-        theta_ = ones_tensor - theta[..., 0] - theta[..., 1]
+        # theta = torch.sigmoid(self.weight.latent_param)
+        theta = 0.5*torch.tanh(self.weight.latent_param) + 0.5
+        theta_ = -0.5*theta[..., 0] - 0.5*theta[..., 1]
         mu = theta[..., 1]  - theta_
         sigma_square = theta[..., 1]  + theta_ - mu**2
 
@@ -81,9 +81,9 @@ class TernaryLinear(nn.Linear):
         return self
 
     def forward(self, input):
-        theta = torch.sigmoid(self.weight.latent_param)
-        ones_tensor = torch.ones_like(theta[..., 0])
-        theta_ = ones_tensor - theta[..., 0] - theta[..., 1]
+        # theta = torch.sigmoid(self.weight.latent_param)
+        theta = 0.5*torch.tanh(self.weight.latent_param) + 0.5
+        theta_ = -0.5*theta[..., 0] - 0.5*theta[..., 1]
         mu = theta[..., 1]  - theta_
         sigma_square = theta[..., 1]  + theta_ - mu**2
 

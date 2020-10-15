@@ -57,7 +57,7 @@ def train_bnn(model, config, logger):
                                   batch_size=config.batch_size)
     
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
+    optimizer = torcsh.optim.Adam(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
     # optimizer = torch.optim.SGD(model.parameters(), lr=config.lr)
 
     # before optimization, report the result first 

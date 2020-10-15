@@ -120,14 +120,16 @@ def init_latent_params(model, ref_model, **kwargs):
         abs_normalized_w = normalized_w.abs()
 
         # take the logits of the probability, i.e., log(y/(1-y)) = log(-1+1/(1-y))
-        # a, b denote the variables which controls the probability
-        sigmoid_a = p_max - (p_max - p_min) * abs_normalized_w
-        sigmoid_a = torch.clamp(sigmoid_a, p_min, p_max)
-        sigmoid_b = 0.5*((1 - sigmoid_a) + normalized_w)
-        sigmoid_b = torch.clamp(sigmoid_b, p_min, p_max)
+        prob_0 = p_max - (p_max - p_min) * abs_normalized_w
+        prob_0 = torch.clamp(prob_0, p_min, p_max)
+        prob_1 = 0.5*((1 - prob_0) + normalized_w)
+        prob_1 = torch.clamp(prob_1 , p_min, p_max)
 
-        module.weight.latent_param.data[..., 0] = torch.log(-1 + 1/(1 - sigmoid_a))
-        module.weight.latent_param.data[..., 1] = torch.log(-1 + 1/(1 - sigmoid_b))
+        double_prob_0_minus_one = 2*prob_0 - 1
+        double_prob_1_minus_one = 2*prob_1 - 1
+
+        module.weight.latent_param.data[..., 0] = 0.5*torch.log((1 + double_prob_0_minus_one)/(1 - double_prob_0_minus_one))
+        module.weight.latent_param.data[..., 1] = 0.5*torch.log((1 + double_prob_1_minus_one)/(1 - double_prob_1_minus_one))
 
 
 def init_bnn_params(model, ref_model):

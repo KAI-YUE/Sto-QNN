@@ -1,13 +1,14 @@
 # device: "cuda" | "cpu"
 device: cuda
-mode: 1
+mode: 0
 
 # hyperparameters and model type
 # model:            "ternary"
 # batch_size:       literal meaning
 # tau:              number of local iterations
 # momentum:         momentum settings for the optimizer
-model: "binary"
+# model: "binary"
+model: "complete_ternary"
 total_epoch: 20
 batch_size: 256
 lr: 0.01
