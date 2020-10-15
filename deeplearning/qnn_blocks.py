@@ -18,7 +18,6 @@ class TernaryConv2d(nn.Conv2d):
         self._init_latent_param()
         self.weight.requires_grad = False
         self.bias.requires_grad = False
-        self.delta = 1e-8
 
     def _init_latent_param(self):
         """Initialize the placeholders for the multinomial distribution paramters.
@@ -42,23 +41,18 @@ class TernaryConv2d(nn.Conv2d):
         mu = theta[..., 1]  - theta_
         sigma_square = theta[..., 1]  + theta_ - mu**2
 
-        mean = F.conv2d(input, mu, self.bias, 
+        mu = F.conv2d(input, mu, self.bias, 
                         self.stride, self.padding, self.dilation)
         sigma_square = F.conv2d(input**2, sigma_square, None, 
                                 self.stride, self.padding, self.dilation)
 
         # to prevent sqrt(x) yields inf grad at 0, filter out zero entries
         non_zero_indices = (sigma_square != 0)
-
-        # non_zero_numbers = torch.sum(non_zero_indices).to(torch.float32)
-        # total_numbers = torch.prod(torch.tensor(sigma_square.shape))
-        # print("fraction: {:.2f}".format(non_zero_numbers/total_numbers))
-
         sigma = torch.zeros_like(sigma_square)
         sigma[non_zero_indices] = sigma[non_zero_indices].sqrt()
 
-        epsilon = torch.randn_like(mean)
-        out = mean + sigma*epsilon
+        epsilon = torch.randn_like(mu)
+        out = mu + sigma*epsilon
 
         return out
 
@@ -70,7 +64,6 @@ class TernaryLinear(nn.Linear):
         self._init_latent_param()
         self.weight.requires_grad = False
         self.bias.requires_grad = False
-        self.delta = 1e-8
 
     def _init_latent_param(self):
         """Initialize the placeholders for the multinomial distribution paramters.
@@ -94,7 +87,7 @@ class TernaryLinear(nn.Linear):
         mu = theta[..., 1]  - theta_
         sigma_square = theta[..., 1]  + theta_ - mu**2
 
-        mean = F.linear(input, mu, self.bias)
+        mu = F.linear(input, mu, self.bias)
         sigma_square = F.linear(input**2, sigma_square)
 
         # to prevent sqrt(x) yields inf grad at 0, filter out zero entries
@@ -102,8 +95,55 @@ class TernaryLinear(nn.Linear):
         sigma = torch.zeros_like(sigma_square)
         sigma[non_zero_indices] = sigma[non_zero_indices].sqrt()
 
-        epsilon = torch.randn_like(mean)
-        out = mean + sigma*epsilon
+        epsilon = torch.randn_like(mu)
+        out = mu + sigma*epsilon
 
         return out
 
+#----------------------------------------
+# For binary implementation, I borrow some ideas from the following paper.
+# Peters, Jorn W. T., and Max Welling. “Probabilistic Binary Neural Networks.” ArXiv Preprint ArXiv:1809.03368, 2018.
+#----------------------------------------
+
+class BinaryConv2d(nn.Conv2d):
+    def __init__(self, *kargs, **kwargs):
+        super(BinaryConv2d, self).__init__(*kargs, **kwargs)
+        self.latentdim = 2
+    
+    def forward(self, input):
+        # theta = activate_fun(w) = 1/2*tanh(w) + 1/2
+        theta = torch.tanh(self.weight.data)
+        mu = F.conv2d(input, theta, self.bias,
+                      self.stride, self.padding, self.dilation)
+        sigma_square = F.conv2d(input**2, 1-theta**2, None)
+        
+        # to prevent sqrt(x) yields inf grad at 0, filter out zero entries
+        non_zero_indices = (sigma_square != 0)
+        sigma = torch.zeros_like(sigma_square)
+        sigma[non_zero_indices] = sigma[non_zero_indices].sqrt()
+
+        epsilon = torch.randn_like(mu)
+        out = mu + sigma*epsilon
+
+        return out
+
+class BinaryLinear(nn.Linear):
+    def __init__(self, *kargs, **kwargs):
+        super(BinaryLinear, self).__init__(*kargs, **kwargs)
+        self.latentdim = 2
+
+    def forward(self, input):
+        # theta = activate_fun(w) = 1/2*tanh(w) + 1/2
+        theta = torch.tanh(self.weight.data)
+        mu = F.linear(input, theta, self.bias)
+        sigma_square = F.linear(input**2, 1-theta**2, None)
+        
+        # to prevent sqrt(x) yields inf grad at 0, filter out zero entries
+        non_zero_indices = (sigma_square != 0)
+        sigma = torch.zeros_like(sigma_square)
+        sigma[non_zero_indices] = sigma[non_zero_indices].sqrt()
+
+        epsilon = torch.randn_like(mu)
+        out = mu + sigma*epsilon
+
+        return out

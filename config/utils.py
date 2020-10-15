@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 
 # My Libraries
 from deeplearning import nn_registry
-from deeplearning.qnn import init_latent_params
+from deeplearning.qnn import init_latent_params, init_bnn_params
 from deeplearning.real_weights import init_weights
 from deeplearning.dataset import CustomizedDataset
 
@@ -97,25 +97,46 @@ def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
-def init_qnn(config):
+def init_qnn(config, logger):
     # initialize the model
     sample_size = config.sample_size[0] * config.sample_size[1]
     full_model = nn_registry[config.full_model](in_dims=sample_size*config.channels, in_channels=config.channels)
     sto_qnn = nn_registry[config.model](in_dims=sample_size*config.channels, in_channels=config.channels)
     
     if os.path.exists(config.full_weight_dir):
-        print("--- Load pre-trained model. ---")
+        logger.info("--- Load pre-trained model. ---")
         state_dict = torch.load(config.full_weight_dir)
         full_model.load_state_dict(state_dict)
     else:
+        logger.info("--- Train quantized model from scratch. ---")
         full_model.apply(init_weights)
 
     init_latent_params(sto_qnn, full_model)
     sto_qnn = sto_qnn.to(config.device)
     return sto_qnn
 
+def init_bnn(config, logger):
+    # initialize the model
+    sample_size = config.sample_size[0] * config.sample_size[1]
+    full_model = nn_registry[config.full_model](in_dims=sample_size*config.channels, in_channels=config.channels)
+    sto_bnn = nn_registry[config.model](in_dims=sample_size*config.channels, in_channels=config.channels)
+    
+    if os.path.exists(config.full_weight_dir):
+        logger.info("--- Load pre-trained model. ---")
+        state_dict = torch.load(config.full_weight_dir)
+        full_model.load_state_dict(state_dict)
+    else:
+        logger.info("--- Train quantized model from scratch. ---")
+        full_model.apply(init_weights)
+
+    init_bnn_params(sto_bnn, full_model)
+    sto_bnn = sto_bnn.to(config.device)
+    return sto_bnn
+
+
 def init_full_model(config):
     # initialize the model
+    logger.info("--- Train full precision model from scratch. ---")
     sample_size = config.sample_size[0] * config.sample_size[1]
     full_model = nn_registry[config.full_model](in_dims=sample_size*config.channels, in_channels=config.channels)
     full_model.apply(init_weights)

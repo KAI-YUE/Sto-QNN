@@ -19,6 +19,8 @@ from deeplearning.networks import *
 from deeplearning.dataset import CustomizedDataset
 
 nn_registry = {
-    "ternary": TernaryNeuralNet,
-    "type1":  FullPrecisionNet_Type1
+    "ternary":          TernaryNeuralNet,
+    "binary":           BinaryNeuralNet,
+    "complete_ternary": CompleteTernaryNeuralNet,
+    "type1":            FullPrecisionNet_Type1
 }
