@@ -59,7 +59,6 @@ def test_accuracy(qnn_model, test_dataset, device="cuda"):
         num_samples = test_dataset["labels"].shape[0]
         accuracy = 0
 
-        # Full Batch testing
         dividers = 100
         batch_size = int(len(dataset)/dividers)
         testing_data_loader = DataLoader(dataset=dataset, batch_size=batch_size)
@@ -107,13 +106,15 @@ def test_qnn_accuracy(qnn_model, test_dataset, device, config):
     
     return acc
 
-def test_bnn_accuracy(bnn_model, test_dataset, device, config):
+def test_bnn_accuracy(bnn_model, test_dataset, device, config, logger):
     with torch.no_grad():
         sample_size = config.sample_size[0] * config.sample_size[1]
         sampled_bnn = nn_registry[config.full_model](in_dims=sample_size*config.channels, in_channels=config.channels)
         sampled_bnn.load_state_dict(bnn_model.state_dict())
         
         sampled_bnn_state_dict = sampled_bnn.state_dict()
+
+        entropy = 0
 
         named_modules = bnn_model.named_modules()
         next(named_modules)
@@ -123,9 +124,18 @@ def test_bnn_accuracy(bnn_model, test_dataset, device, config):
             elif not hasattr(module.weight, "latent_param"):
                 continue
 
-            prob_equals_one = torch.tanh(module.weight)
-            sampled_bnn_state_dict[module_name + ".weight"] = prob_equals_one.sign()
-        
+            sampled_bnn_state_dict[module_name + ".weight"] = module.weight.sign()
+            prob = 0.5*torch.tanh(module.weight) + 0.5
+            entropy -= prob*torch.log(prob) + (1-prob)*torch.log(1-prob) 
+            
+            # rand_variable = torch.rand_like(module.weight)
+            # prob_equal_one = 0.5*torch.tanh(module.weight) + 0.5
+            # ones_tensor = torch.ones_like(module.weight)
+            # zeros_tensor = torch.zeros_like(module.weight)
+            # sampled_bnn_state_dict[module_name + ".weight"] = torch.where(rand_variable < prob_equal_one, ones_tensor, -ones_tensor)
+
+        logger.info("Entropy: {:.3f}".format(entropy))
+
         sampled_bnn.load_state_dict(sampled_bnn_state_dict)
         sampled_bnn = sampled_bnn.to(device)
         acc = test_accuracy(sampled_bnn, test_dataset, device)
@@ -172,7 +182,7 @@ def init_qnn(config, logger):
     return sto_qnn
 
 def init_bnn(config, logger):
-    # initialize the qnn_model
+    # initialize the bnn_model
     sample_size = config.sample_size[0] * config.sample_size[1]
     full_model = nn_registry[config.full_model](in_dims=sample_size*config.channels, in_channels=config.channels)
     sto_bnn = nn_registry[config.qnn_model](in_dims=sample_size*config.channels, in_channels=config.channels)

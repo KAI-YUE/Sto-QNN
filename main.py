@@ -90,11 +90,12 @@ def train_bnn(model, config, logger):
                 with torch.no_grad():
                     loss = train_loss(model, dataset["train_data"], device=config.device)
                     test_acc = test_accuracy(model, dataset["test_data"], device=config.device)
-                    sampled_bnn_acc = test_bnn_accuracy(model, dataset["test_data"], config.device, config)
+                    sampled_bnn_acc = test_bnn_accuracy(model, dataset["test_data"], config.device, config, logger)
 
                 logger.info("Train loss {:.4f}".format(loss))
                 logger.info("Test accuracy {:.4f}".format(test_acc))
                 logger.info("Sampled BNN accuracy {:.4f}".format(sampled_bnn_acc))
+
 
 def train_full_model(model, config, logger):
     device = config.device
