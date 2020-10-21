@@ -1,6 +1,6 @@
 # device: "cuda" | "cpu"
-device: cuda
-mode: 0
+device: cpu
+mode: 1
 
 # hyperparameters and model type
 # model:            "ternary"
@@ -8,10 +8,10 @@ mode: 0
 # tau:              number of local iterations
 # momentum:         momentum settings for the optimizer
 # qnn_model: "binary"
-qnn_model: "ternary"
-total_epoch: 20
+qnn_model: "binary"
+total_epoch: 2
 batch_size: 256
-lr: 0.001
+lr: 0.01
 momentum: 0
 weight_decay: 1.e-11
 
@@ -26,8 +26,8 @@ full_weight_dir: "checkpoints/full_model_0.984.pth"
 # sample_size:   the size of one sample [height x width/num_of_features]
 # classes:      the number of classes
 record_dir:     ../This{}.dat
-test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/test.dat
-train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/train.dat
+test_data_dir:  /home/kaiyue/Datasets/mnist/test.dat
+train_data_dir: /home/kaiyue/Datasets/mnist/train.dat
 # test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/test.dat
 # train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/train.dat
 sample_size:

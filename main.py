@@ -44,7 +44,7 @@ def train_qnn(model, config, logger):
             # record the test accuracy
             if iteration % config.log_iters == 0:
                 with torch.no_grad():
-                    loss = train_loss(model, dataset["train_data"], device=config.device)
+                    # loss = train_loss(model, dataset["train_data"], device=config.device)
                     test_acc = test_accuracy(model, dataset["test_data"], config.device)
                     sampled_qnn_acc = test_qnn_accuracy(model, dataset["test_data"], config.device, config)
 
@@ -88,7 +88,7 @@ def train_bnn(model, config, logger):
             # record the test accuracy
             if iteration % config.log_iters == 0:
                 with torch.no_grad():
-                    loss = train_loss(model, dataset["train_data"], device=config.device)
+                    # loss = train_loss(model, dataset["train_data"], device=config.device)
                     test_acc = test_accuracy(model, dataset["test_data"], device=config.device)
                     sampled_bnn_acc = test_bnn_accuracy(model, dataset["test_data"], config.device, config)
 
@@ -132,7 +132,7 @@ def train_full_model(model, config, logger):
             # record the test accuracy
             if iteration % config.log_iters == 0:
                 with torch.no_grad():
-                    loss = train_loss(model, dataset["train_data"], device=config.device)
+                    # loss = train_loss(model, dataset["train_data"], device=config.device)
                     test_acc = test_accuracy(model, dataset["test_data"], device=config.device)
 
                 logger.info("Train loss {:.4f}".format(loss))
