@@ -111,8 +111,8 @@ class BinaryConv2d(nn.Conv2d):
         self.weight.latent_param = "overlap_with_weight"
     
     def forward(self, input):
-        # theta = activate_fun(w) = 1/2*tanh(w) + 1/2
-        theta = torch.tanh(self.weight.data)
+        # theta = activate_fun(w) 
+        theta = torch.tanh(self.weight)
         mu = F.conv2d(input, theta, self.bias,
                       self.stride, self.padding, self.dilation)
         sigma_square = F.conv2d(input**2, 1-theta**2, None)
@@ -135,8 +135,8 @@ class BinaryLinear(nn.Linear):
         self.weight.latent_param = "overlap_with_weight"
 
     def forward(self, input):
-        # theta = activate_fun(w) = 1/2*tanh(w) + 1/2
-        theta = torch.tanh(self.weight.data)
+        # theta = activate_fun(w)
+        theta = torch.tanh(self.weight)
         mu = F.linear(input, theta, self.bias)
         sigma_square = F.linear(input**2, 1-theta**2, None)
         
