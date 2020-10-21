@@ -125,11 +125,8 @@ def init_latent_params(model, ref_model, **kwargs):
         prob_one = p_min  + p_max*normalized_w
         prob_one = torch.clamp(prob_one , p_min, p_max)
 
-        activated_a = 2*prob_minus_one - 1
-        activated_b = 2*prob_one - 1
-
-        module.weight.latent_param.data[..., 0] = 0.5*torch.log((1 + activated_a)/(1 - activated_a))
-        module.weight.latent_param.data[..., 1] = 0.5*torch.log((1 + activated_b)/(1 - activated_b))
+        module.weight.latent_param.data[..., 0] = torch.log(-1+1/(1-prob_minus_one))
+        module.weight.latent_param.data[..., 1] = torch.log(-1+1/(1-prob_one))
 
 
 def init_bnn_params(model, ref_model):
@@ -151,7 +148,7 @@ def init_bnn_params(model, ref_model):
             
         # normalize the weight
         ref_w = ref_state_dict[module_name + ".weight"]
-        # normalized_w = ref_w / ref_w.std()
+        normalized_w = ref_w.clamp(-0.99, 0.99)    # restrict the weight to (-1,1)
         # abs_normalized_w = normalized_w.abs()
 
-        module.weight.data = 0.5*torch.log((1 + ref_w)/(1 - ref_w))
+        module.weight.data = torch.log(-1 + 2/(1-normalized_w))

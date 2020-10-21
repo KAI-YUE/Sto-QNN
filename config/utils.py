@@ -90,7 +90,7 @@ def test_qnn_accuracy(qnn_model, test_dataset, device, config):
                 continue
             
             # probability vector [pr(w_b=-1), pr(w_b=0), pr(w_b=1)] 
-            theta = 0.5*torch.tanh(module.weight.latent_param) + 0.5
+            theta = torch.sigmoid(module.weight.latent_param)
             theta_shape = torch.tensor(theta.shape).tolist()
             theta_shape[-1] = 3
             prob = torch.zeros(theta_shape)
@@ -125,11 +125,11 @@ def test_bnn_accuracy(bnn_model, test_dataset, device, config, logger):
                 continue
 
             sampled_bnn_state_dict[module_name + ".weight"] = module.weight.sign()
-            prob = 0.5*torch.tanh(module.weight) + 0.5
-            entropy -= prob*torch.log(prob) + (1-prob)*torch.log(1-prob) 
+            prob = torch.sigmoid(module.weight)
+            entropy -= torch.sum(prob*torch.log(prob) + (1-prob)*torch.log(1-prob)) 
             
             # rand_variable = torch.rand_like(module.weight)
-            # prob_equal_one = 0.5*torch.tanh(module.weight) + 0.5
+            # prob_equal_one = torch.sigmoid(module.weight)
             # ones_tensor = torch.ones_like(module.weight)
             # zeros_tensor = torch.zeros_like(module.weight)
             # sampled_bnn_state_dict[module_name + ".weight"] = torch.where(rand_variable < prob_equal_one, ones_tensor, -ones_tensor)

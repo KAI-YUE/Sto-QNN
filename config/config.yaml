@@ -2,40 +2,43 @@
 # mode 0: train the quantized neural network
 # mode 1: train the binary neural network
 # mode 2: train the full precision neural network
-device: cuda
-mode: 0
+device: cpu
+mode: 1
 
 # hyperparameters and model type
 # model:            "ternary"
 # batch_size:       literal meaning
 # tau:              number of local iterations
 # momentum:         momentum settings for the optimizer
-# qnn_model: "binary"
-qnn_model: "ternary"
+qnn_model: "binary"
+# qnn_model: "ternary"
 total_epoch: 20
 batch_size: 256
 lr: 0.01
 momentum: 0
-weight_decay: 1.e-11
+weight_decay: 0
 
 # regularizer
-lambda: 0.1
+lambda_: 2
 
 
 # full precision model counterpart
 full_model: "type1"
-full_weight_dir: "checkpoints/fmnist_0.9.pth"
+full_weight_dir: "checkpoints/mnist_0.97.pth"
+# full_weight_dir: ""
 
 # Simulation dataset configurations
 # test_data_dir : the directory to the testDataset
 # train_data_dir: the directory to the trainDataset
-# sample_size:   the size of one sample [height x width/num_of_features]
+# sample_size:   the size of one sample [height x width\num_of_features]
 # classes:      the number of classes
 record_dir:     ../This{}.dat
+test_data_dir:  /home/kaiyue/Datasets/mnist/test.dat
+train_data_dir: /home/kaiyue/Datasets/mnist/train.dat
 # test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/test.dat
 # train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/train.dat
-test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/test.dat
-train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/train.dat
+# test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/test.dat
+# train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/train.dat
 sample_size:
 - 28
 - 28

@@ -36,7 +36,7 @@ class TernaryConv2d(nn.Conv2d):
 
     def forward(self, input):
         # theta = torch.sigmoid(self.weight.latent_param)
-        theta = 0.5*torch.tanh(self.weight.latent_param) + 0.5
+        theta = torch.sigmoid(self.weight.latent_param)
         mu = theta[..., 1]  - theta[..., 0]
         sigma_square = theta[..., 1]  + theta[..., 0] - mu**2
 
@@ -81,7 +81,7 @@ class TernaryLinear(nn.Linear):
 
     def forward(self, input):
         # theta = torch.sigmoid(self.weight.latent_param)
-        theta = 0.5*torch.tanh(self.weight.latent_param) + 0.5
+        theta = torch.sigmoid(self.weight.latent_param)
         mu = theta[..., 1]  - theta[..., 0]
         sigma_square = theta[..., 1]  + theta[..., 0] - mu**2
 
@@ -98,10 +98,6 @@ class TernaryLinear(nn.Linear):
 
         return out
 
-#----------------------------------------
-# For binary implementation, I borrow some ideas from the following paper.
-# Peters, Jorn W. T., and Max Welling. “Probabilistic Binary Neural Networks.” ArXiv Preprint ArXiv:1809.03368, 2018.
-#----------------------------------------
 
 class BinaryConv2d(nn.Conv2d):
     def __init__(self, *kargs, **kwargs):
@@ -112,10 +108,13 @@ class BinaryConv2d(nn.Conv2d):
     
     def forward(self, input):
         # theta = activate_fun(w) = 1/2*tanh(w) + 1/2
-        theta = torch.tanh(self.weight.data)
-        mu = F.conv2d(input, theta, self.bias,
+        theta = torch.sigmoid(self.weight)
+        mu = 2*theta - 1
+        sigma_square = 1 - mu**2
+
+        mu = F.conv2d(input, mu, self.bias,
                       self.stride, self.padding, self.dilation)
-        sigma_square = F.conv2d(input**2, 1-theta**2, None)
+        sigma_square = F.conv2d(input**2, sigma_square, None)
         
         # to prevent sqrt(x) yields inf grad at 0, filter out zero entries
         non_zero_indices = (sigma_square != 0)
@@ -136,9 +135,12 @@ class BinaryLinear(nn.Linear):
 
     def forward(self, input):
         # theta = activate_fun(w) = 1/2*tanh(w) + 1/2
-        theta = torch.tanh(self.weight.data)
-        mu = F.linear(input, theta, self.bias)
-        sigma_square = F.linear(input**2, 1-theta**2, None)
+        theta = torch.sigmoid(self.weight)
+        mu = 2*theta - 1
+        sigma_square = 1 - mu**2
+
+        mu = F.linear(input, mu, self.bias)
+        sigma_square = F.linear(input**2, sigma_square, None)
         
         # to prevent sqrt(x) yields inf grad at 0, filter out zero entries
         non_zero_indices = (sigma_square != 0)
