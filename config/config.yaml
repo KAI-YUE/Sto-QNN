@@ -11,21 +11,22 @@ mode: 1
 # tau:              number of local iterations
 # momentum:         momentum settings for the optimizer
 qnn_model: "binary"
+# qnn_model: "complete_binary"
 # qnn_model: "ternary"
-total_epoch: 20
+total_epoch: 10
 batch_size: 256
 lr: 0.01
 momentum: 0
 weight_decay: 0
 
 # regularizer
-lambda_: 2
+lambda_: 0.5
 
 
 # full precision model counterpart
 full_model: "type1"
-full_weight_dir: "checkpoints/mnist_0.97.pth"
-# full_weight_dir: ""
+# full_weight_dir: "checkpoints/mnist_0.97.pth"
+full_weight_dir: ""
 
 # Simulation dataset configurations
 # test_data_dir : the directory to the testDataset

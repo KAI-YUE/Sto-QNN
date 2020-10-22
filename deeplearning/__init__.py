@@ -22,5 +22,6 @@ nn_registry = {
     "ternary":          TernaryNeuralNet,
     "binary":           BinaryNeuralNet,
     "complete_ternary": CompleteTernaryNeuralNet,
+    "complete_binary":  CompleteBinaryNeuralNet,
     "type1":            FullPrecisionNet_Type1
 }
