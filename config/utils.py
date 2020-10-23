@@ -201,10 +201,11 @@ def init_bnn(config, logger):
         state_dict = torch.load(config.full_weight_dir)
         full_model.load_state_dict(state_dict)
     else:
-        logger.info("--- Train quantized qnn_model from scratch. ---")
+        logger.info("--- Train quantized bnn_model from scratch. ---")
         full_model.apply(init_weights)
 
     init_bnn_params(sto_bnn, full_model)
+    sto_bnn.freeze_final_layer()
     sto_bnn = sto_bnn.to(config.device)
     return sto_bnn
 

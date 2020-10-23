@@ -16,10 +16,10 @@ total_epoch: 20
 batch_size: 256
 lr: 0.01
 momentum: 0
-weight_decay: 1.e-11
+weight_decay: 0
 
 # regularizer
-lambda_: 0.0
+lambda_: 0.5
 
 
 # full precision model counterpart
@@ -30,7 +30,7 @@ full_weight_dir: "checkpoints/full_model_0.9203.pth"
 # Simulation dataset configurations
 # test_data_dir : the directory to the testDataset
 # train_data_dir: the directory to the trainDataset
-# sample_size:   the size of one sample [height x width/num_of_features]
+# sample_size:   the size of one sample [height x width\num_of_features]
 # classes:      the number of classes
 record_dir:     ../This{}.dat
 test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/test.dat

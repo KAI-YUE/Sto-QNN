@@ -98,10 +98,6 @@ class TernaryLinear(nn.Linear):
 
         return out
 
-#----------------------------------------
-# For binary implementation, I borrow some ideas from the following paper.
-# Peters, Jorn W. T., and Max Welling. “Probabilistic Binary Neural Networks.” ArXiv Preprint ArXiv:1809.03368, 2018.
-#----------------------------------------
 
 class BinaryConv2d(nn.Conv2d):
     def __init__(self, *kargs, **kwargs):
