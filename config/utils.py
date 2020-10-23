@@ -32,7 +32,7 @@ def parse_dataset_type(config):
     elif "cifar" in config.train_data_dir:
         type_ = "cifar"
     
-    return type_
+    return "plain"
 
 def init_logger(config):
     """Initialize a logger object. 
@@ -62,9 +62,9 @@ def save_record(config, record):
     with open(os.path.join(current_path, file_name), "wb") as fp:
         pickle.dump(record, fp)
 
-def test_accuracy(qnn_model, test_dataset, device="cuda"):
+def test_accuracy(qnn_model, test_dataset, type_, device="cuda"):
     with torch.no_grad():
-        dataset = CustomizedDataset(test_dataset["images"], test_dataset["labels"])
+        dataset = CustomizedDataset(test_dataset["images"], test_dataset["labels"], type_)
         num_samples = test_dataset["labels"].shape[0]
         accuracy = 0
 
@@ -111,7 +111,8 @@ def test_qnn_accuracy(qnn_model, test_dataset, device, config):
         
         sampled_qnn.load_state_dict(sampled_qnn_state_dict)
         sampled_qnn = sampled_qnn.to(device)
-        acc = test_accuracy(sampled_qnn, test_dataset, device)
+        dataset_type = parse_dataset_type(config)
+        acc = test_accuracy(sampled_bnn, test_dataset, dataset_type, device)
     
     return acc
 
@@ -147,14 +148,15 @@ def test_bnn_accuracy(bnn_model, test_dataset, device, config, logger):
 
         sampled_bnn.load_state_dict(sampled_bnn_state_dict)
         sampled_bnn = sampled_bnn.to(device)
-        acc = test_accuracy(sampled_bnn, test_dataset, device)
+        dataset_type = parse_dataset_type(config)
+        acc = test_accuracy(sampled_bnn, test_dataset, dataset_type, device)
     
     return acc            
 
-def train_loss(model, train_dataset, device="cuda"):
+def train_loss(model, train_dataset, type_, device="cuda"):
     with torch.no_grad():
         criterion = nn.CrossEntropyLoss()
-        dataset = CustomizedDataset(train_dataset["images"], train_dataset["labels"])
+        dataset = CustomizedDataset(train_dataset["images"], train_dataset["labels"], type_)
         loss = torch.tensor(0.)
 
         dividers = 100
@@ -205,7 +207,10 @@ def init_bnn(config, logger):
         full_model.apply(init_weights)
 
     init_bnn_params(sto_bnn, full_model)
-    sto_bnn.freeze_final_layer()
+
+    if config.freeze_fc:
+        sto_bnn.freeze_final_layer()
+
     sto_bnn = sto_bnn.to(config.device)
     return sto_bnn
 

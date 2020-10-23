@@ -15,7 +15,7 @@ def train_qnn(model, config, logger):
     dataset_type = parse_dataset_type(config)
     train_dataloader = DataLoader(CustomizedDataset(dataset["train_data"]["images"], 
                                     dataset["train_data"]["labels"], 
-                                    dataset_type), batch_size=config.batch_size)
+                                    dataset_type), batch_size=config.batch_size, shuffle=True)
     
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.latent_parameters(), lr=config.lr, weight_decay=config.weight_decay)
@@ -24,8 +24,8 @@ def train_qnn(model, config, logger):
     # before optimization, report the result first 
     with torch.no_grad():
         # validate the model and log test accuracy
-        loss = train_loss(model, dataset["train_data"], device=config.device)
-        test_acc = test_accuracy(model, dataset["test_data"], device=config.device)
+        loss = train_loss(model, dataset["train_data"], dataset_type, device=config.device)
+        test_acc = test_accuracy(model, dataset["test_data"], dataset_type, device=config.device)
 
         logger.info("Test accuracy {:.4f}".format(test_acc))
         logger.info("Train loss {:.4f}".format(loss))
@@ -48,7 +48,7 @@ def train_qnn(model, config, logger):
             if iteration % config.log_iters == 0:
                 with torch.no_grad():
                     # loss = train_loss(model, dataset["train_data"], device=config.device)
-                    test_acc = test_accuracy(model, dataset["test_data"], config.device)
+                    test_acc = test_accuracy(model, dataset["test_data"], dataset_type, config.device)
                     sampled_qnn_acc = test_qnn_accuracy(model, dataset["test_data"], config.device, config)
 
                 logger.info("Train loss {:.4f}".format(loss))
@@ -61,7 +61,7 @@ def train_bnn(model, config, logger):
     dataset_type = parse_dataset_type(config)
     train_dataloader = DataLoader(CustomizedDataset(dataset["train_data"]["images"], 
                                     dataset["train_data"]["labels"], 
-                                    dataset_type), batch_size=config.batch_size)
+                                    dataset_type), batch_size=config.batch_size, shuffle=True)
     
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
@@ -95,7 +95,7 @@ def train_bnn(model, config, logger):
             if iteration % config.log_iters == 0:
                 with torch.no_grad():
                     # loss = train_loss(model, dataset["train_data"], device=config.device)
-                    test_acc = test_accuracy(model, dataset["test_data"], device=config.device)
+                    test_acc = test_accuracy(model, dataset["test_data"], dataset_type, device=config.device)
                     sampled_bnn_acc = test_bnn_accuracy(model, dataset["test_data"], config.device, config, logger)
 
                 logger.info("Train loss {:.4f}".format(loss))
@@ -110,7 +110,7 @@ def train_full_model(model, config, logger):
     dataset_type = parse_dataset_type(config)
     train_dataloader = DataLoader(CustomizedDataset(dataset["train_data"]["images"], 
                                     dataset["train_data"]["labels"], 
-                                    dataset_type), batch_size=config.batch_size)
+                                    dataset_type), batch_size=config.batch_size, shuffle=True)
     
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
@@ -119,8 +119,8 @@ def train_full_model(model, config, logger):
     # before optimization, report the result first 
     with torch.no_grad():
         # validate the model and log test accuracy
-        loss = train_loss(model, dataset["train_data"], device=config.device)
-        test_acc = test_accuracy(model, dataset["test_data"], device=config.device)
+        loss = train_loss(model, dataset["train_data"], dataset_type, device=config.device)
+        test_acc = test_accuracy(model, dataset["test_data"], dataset_type, device=config.device)
 
         logger.info("Test accuracy {:.4f}".format(test_acc))
         logger.info("Train loss {:.4f}".format(loss))
@@ -142,8 +142,8 @@ def train_full_model(model, config, logger):
             # record the test accuracy
             if iteration % config.log_iters == 0:
                 with torch.no_grad():
-                    # loss = train_loss(model, dataset["train_data"], device=config.device)
-                    test_acc = test_accuracy(model, dataset["test_data"], device=config.device)
+                    # loss = train_loss(model, dataset["train_data"], dataset_type, device=config.device)
+                    test_acc = test_accuracy(model, dataset["test_data"], dataset_type, device=config.device)
 
                 logger.info("Train loss {:.4f}".format(loss))
                 logger.info("Test accuracy {:.4f}".format(test_acc))
