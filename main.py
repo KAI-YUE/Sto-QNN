@@ -7,12 +7,15 @@ from torch.utils.data import DataLoader
 # My Libraries
 from config import *
 from deeplearning import CustomizedDataset
+from deeplearning.regularizer import *
 
 def train_qnn(model, config, logger):
     device = config.device
     dataset = load_data(config) 
-    train_dataloader = DataLoader(CustomizedDataset(dataset["train_data"]["images"],dataset["train_data"]["labels"]),
-                                  batch_size=config.batch_size)
+    dataset_type = parse_dataset_type(config)
+    train_dataloader = DataLoader(CustomizedDataset(dataset["train_data"]["images"], 
+                                    dataset["train_data"]["labels"], 
+                                    dataset_type), batch_size=config.batch_size)
     
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.latent_parameters(), lr=config.lr, weight_decay=config.weight_decay)
@@ -54,9 +57,11 @@ def train_qnn(model, config, logger):
 
 def train_bnn(model, config, logger):
     device = config.device
-    dataset = load_data(config) 
-    train_dataloader = DataLoader(CustomizedDataset(dataset["train_data"]["images"],dataset["train_data"]["labels"]),
-                                  batch_size=config.batch_size)
+    dataset = load_data(config)
+    dataset_type = parse_dataset_type(config)
+    train_dataloader = DataLoader(CustomizedDataset(dataset["train_data"]["images"], 
+                                    dataset["train_data"]["labels"], 
+                                    dataset_type), batch_size=config.batch_size)
     
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
@@ -81,6 +86,7 @@ def train_bnn(model, config, logger):
             optimizer.zero_grad()
             outputs = model(image)
             loss = criterion(outputs, label)
+            # loss = add_bnn_entropy_regularizer(loss, model, lambda_=config.lambda_)
 
             loss.backward()
             optimizer.step()
@@ -100,8 +106,10 @@ def train_bnn(model, config, logger):
 def train_full_model(model, config, logger):
     device = config.device
     dataset = load_data(config) 
-    train_dataloader = DataLoader(CustomizedDataset(dataset["train_data"]["images"],dataset["train_data"]["labels"]),
-                                  batch_size=config.batch_size)
+    dataset_type = parse_dataset_type(config)
+    train_dataloader = DataLoader(CustomizedDataset(dataset["train_data"]["images"], 
+                                    dataset["train_data"]["labels"], 
+                                    dataset_type), batch_size=config.batch_size)
     
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
