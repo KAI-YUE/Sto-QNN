@@ -32,7 +32,7 @@ def parse_dataset_type(config):
     elif "cifar" in config.train_data_dir:
         type_ = "cifar"
     
-    return "plain"
+    return type_
 
 def init_logger(config):
     """Initialize a logger object. 
@@ -62,8 +62,9 @@ def save_record(config, record):
     with open(os.path.join(current_path, file_name), "wb") as fp:
         pickle.dump(record, fp)
 
-def test_accuracy(qnn_model, test_dataset, type_, device="cuda"):
+def test_accuracy(model, test_dataset, type_, device="cuda"):
     with torch.no_grad():
+        model.eval()
         dataset = CustomizedDataset(test_dataset["images"], test_dataset["labels"], type_)
         num_samples = test_dataset["labels"].shape[0]
         accuracy = 0
@@ -72,11 +73,13 @@ def test_accuracy(qnn_model, test_dataset, type_, device="cuda"):
         batch_size = int(len(dataset)/dividers)
         testing_data_loader = DataLoader(dataset=dataset, batch_size=batch_size)
         for i, samples in enumerate(testing_data_loader):
-            results = qnn_model(samples["image"].to(device))
+            results = model(samples["image"].to(device))
             predicted_labels = torch.argmax(results, dim=1).detach().cpu().numpy()
             accuracy += np.sum(predicted_labels == test_dataset["labels"][i*batch_size: (i+1)*batch_size]) / results.shape[0]
         
         accuracy /= dividers
+
+        model.train()
 
     return accuracy
 
@@ -84,6 +87,7 @@ def test_qnn_accuracy(qnn_model, test_dataset, device, config):
     """test the accuracy of a sampled qnn from the latent distribution.
     """
     with torch.no_grad():
+        qnn_model.eval()
         sample_size = config.sample_size[0] * config.sample_size[1]
         sampled_qnn = nn_registry[config.full_model](in_dims=sample_size*config.channels, in_channels=config.channels)
         sampled_qnn.load_state_dict(qnn_model.state_dict())
@@ -106,18 +110,28 @@ def test_qnn_accuracy(qnn_model, test_dataset, device, config):
             prob[..., 0] = theta[..., 0]
             prob[..., 1] = 1 - theta[..., 0] - theta[..., 1] 
             prob[..., 2] = theta[..., 1]
+            
+            # mle sampling
+            # sampled_qnn_state_dict[module_name + ".weight"] = torch.argmax(prob, dim=-1) - 1 
+            
+            # random sampling
+            random_variable = torch.rand_like(prob[..., 0])
+            sampled_weight = torch.zeros_like(prob[..., 0])
+            sampled_weight = torch.where(random_variable < prob[..., 0], torch.tensor(-1.), sampled_weight)
+            sampled_weight = torch.where(1 - prob[...,2] < random_variable, torch.tensor(1.), sampled_weight)
+            sampled_qnn_state_dict[module_name + ".weight"] = sampled_weight.clone()
 
-            sampled_qnn_state_dict[module_name + ".weight"] = torch.argmax(prob, dim=-1) - 1 
-        
         sampled_qnn.load_state_dict(sampled_qnn_state_dict)
         sampled_qnn = sampled_qnn.to(device)
         dataset_type = parse_dataset_type(config)
-        acc = test_accuracy(sampled_bnn, test_dataset, dataset_type, device)
-    
+        acc = test_accuracy(sampled_qnn, test_dataset, dataset_type, device)
+
+        qnn_model.train()
     return acc
 
 def test_bnn_accuracy(bnn_model, test_dataset, device, config, logger):
     with torch.no_grad():
+        bnn_model.eval()
         sample_size = config.sample_size[0] * config.sample_size[1]
         sampled_bnn = nn_registry[config.full_model](in_dims=sample_size*config.channels, in_channels=config.channels)
         sampled_bnn.load_state_dict(bnn_model.state_dict())
@@ -150,7 +164,9 @@ def test_bnn_accuracy(bnn_model, test_dataset, device, config, logger):
         sampled_bnn = sampled_bnn.to(device)
         dataset_type = parse_dataset_type(config)
         acc = test_accuracy(sampled_bnn, test_dataset, dataset_type, device)
-    
+
+        bnn_model.train()
+
     return acc            
 
 def train_loss(model, train_dataset, type_, device="cuda"):
@@ -216,7 +232,7 @@ def init_bnn(config, logger):
 
 def init_full_model(config, logger):
     # initialize the qnn_model
-    logger.info("--- Train full precision qnn_model from scratch. ---")
+    logger.info("--- Train full precision model from scratch. ---")
     sample_size = config.sample_size[0] * config.sample_size[1]
     full_model = nn_registry[config.full_model](in_dims=sample_size*config.channels, in_channels=config.channels)
     full_model.apply(init_weights)

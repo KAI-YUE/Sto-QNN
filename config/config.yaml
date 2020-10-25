@@ -3,7 +3,7 @@
 # mode 1: train the binary neural network
 # mode 2: train the full precision neural network
 device: cuda
-mode: 2
+mode: 1
 
 # hyperparameters and model type
 # model:            "ternary"
@@ -12,27 +12,26 @@ mode: 2
 # momentum:         momentum settings for the optimizer
 qnn_model: "binary"
 # qnn_model: "ternary"
-total_epoch: 30
+total_epoch: 20
 batch_size: 256
-lr: 0.01
-momentum: 0
+lr: 0.001
+momentum: 0.9
 weight_decay: 0
-freeze: false
+freeze_fc: true
 # regularizer
 lambda_: 0.5
 
 
 # full precision model counterpart
 full_model: "type1"
-full_weight_dir: "checkpoints/full_model_0.9203.pth"
-# full_weight_dir: ""
+# full_weight_dir: "checkpoints/mnist_0.99.pth"
+full_weight_dir: ""
 
 # Simulation dataset configurations
 # test_data_dir : the directory to the testDataset
 # train_data_dir: the directory to the trainDataset
 # sample_size:   the size of one sample [height x width\num_of_features]
 # classes:      the number of classes
-record_dir:     ../This{}.dat
 # test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/test.dat
 # train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/train.dat
 test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/test.dat

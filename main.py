@@ -68,14 +68,14 @@ def train_bnn(model, config, logger):
     # optimizer = torch.optim.SGD(model.parameters(), lr=config.lr)
 
     # before optimization, report the result first 
-    # with torch.no_grad():
-    #     # validate the model and log test accuracy
-    #     loss = train_loss(model, dataset["train_data"], device=config.device)
-    #     test_acc = test_accuracy(model, dataset["test_data"], device=config.device)
+    with torch.no_grad():
+        # validate the model and log test accuracy
+        loss = train_loss(model, dataset["train_data"], dataset_type, device=config.device)
+        test_acc = test_accuracy(model, dataset["test_data"], dataset_type, device=config.device)
 
-    #     logger.info("Test accuracy {:.4f}".format(test_acc))
-    #     logger.info("Train loss {:.4f}".format(loss))
-    #     logger.info("")
+        logger.info("Test accuracy {:.4f}".format(test_acc))
+        logger.info("Train loss {:.4f}".format(loss))
+        logger.info("")
 
     for epoch in range(config.total_epoch):
         logger.info("--- Epoch {:d} ---".format(epoch))

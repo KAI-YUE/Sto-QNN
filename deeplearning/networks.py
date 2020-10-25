@@ -42,22 +42,31 @@ class FullPrecisionNet_Type1(nn.Module):
         self.in_channels = in_channels
         self.input_size = int(np.sqrt(in_dims/in_channels))
         
-        self.conv1 = nn.Conv2d(self.in_channels, 32, kernel_size=5)
+        self.conv1 = nn.Conv2d(self.in_channels, 64, kernel_size=5)
+        self.bn1 = nn.BatchNorm2d(64)
         self.mp1= nn.MaxPool2d(kernel_size=2, stride=2)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=5)
+
+        self.conv2 = nn.Conv2d(64, 128, kernel_size=5)
+        self.bn2 = nn.BatchNorm2d(128)
         self.mp2= nn.MaxPool2d(kernel_size=2, stride=2)
-        self.fc1 = nn.Linear(1024, 512)
+
+        self.fc1 = nn.Linear(2048, 512)
         self.fc2 = nn.Linear(512, out_dims)
 
     # 32C3 - MP2 - 64C3 - Mp2 - 512FC - SM10c
     def forward(self, x):
         x = x.view(x.shape[0], self.in_channels, self.input_size, self.input_size)
-        x = F.relu(self.conv1(x))
+        x = torch.tanh(self.bn1(self.conv1(x)))
+        # x = F.relu(self.bn1(self.conv1(x)))
         x = self.mp1(x)
-        x = F.relu(self.conv2(x))
+        
+        x = torch.tanh(self.bn2(self.conv2(x)))
+        # x = F.relu(self.bn2(self.conv2(x)))
         x = self.mp2(x)
+
         x = x.view(x.shape[0], -1)
-        x = F.relu(self.fc1(x))
+        x = torch.tanh(self.fc1(x))
+        # x = F.relu(self.fc1(x))
         x = self.fc2(x)
         return x
 
