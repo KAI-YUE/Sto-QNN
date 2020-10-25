@@ -3,7 +3,7 @@
 # mode 1: train the binary neural network
 # mode 2: train the full precision neural network
 device: cuda
-mode: 2
+mode: 1
 
 # hyperparameters and model type
 # model:            "ternary"
