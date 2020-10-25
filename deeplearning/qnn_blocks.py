@@ -91,13 +91,12 @@ class TernaryLinear(nn.Linear):
         # to prevent sqrt(x) yields inf grad at 0, filter out zero entries
         non_zero_indices = (sigma_square != 0)
         sigma = torch.zeros_like(sigma_square)
-        sigma[non_zero_indices] = sigma[non_zero_indices].sqrt()
+        sigma[non_zero_indices] = sigma_square[non_zero_indices].sqrt()
 
         epsilon = torch.randn_like(mu)
         out = mu + sigma*epsilon
 
         return out
-
 
 class BinaryConv2d(nn.Conv2d):
     def __init__(self, *kargs, **kwargs):
@@ -117,12 +116,13 @@ class BinaryConv2d(nn.Conv2d):
         sigma_square = F.conv2d(input**2, sigma_square, None)
         
         # to prevent sqrt(x) yields inf grad at 0, filter out zero entries
-        non_zero_indices = (sigma_square != 0)
-        sigma = torch.zeros_like(sigma_square)
-        sigma[non_zero_indices] = sigma[non_zero_indices].sqrt()
+        # non_zero_indices = (sigma_square != 0)
+        # sigma = torch.zeros_like(sigma_square)
+        # sigma[non_zero_indices] = sigma_square[non_zero_indices].sqrt()
 
         epsilon = torch.randn_like(mu)
-        out = mu + sigma*epsilon
+        out = mu + (sigma_square + 1e-6).sqrt()*epsilon
+        # out = mu
 
         return out
 
@@ -143,11 +143,12 @@ class BinaryLinear(nn.Linear):
         sigma_square = F.linear(input**2, sigma_square, None)
         
         # to prevent sqrt(x) yields inf grad at 0, filter out zero entries
-        non_zero_indices = (sigma_square != 0)
-        sigma = torch.zeros_like(sigma_square)
-        sigma[non_zero_indices] = sigma[non_zero_indices].sqrt()
+        # non_zero_indices = (sigma_square != 0)
+        # sigma = torch.zeros_like(sigma_square)
+        # sigma[non_zero_indices] = sigma_square[non_zero_indices].sqrt()
 
         epsilon = torch.randn_like(mu)
-        out = mu + sigma*epsilon
+        # out = mu + (sigma_square + 1e-6).sqrt()*epsilon
+        out = mu
 
         return out
