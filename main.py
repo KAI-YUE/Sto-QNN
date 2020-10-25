@@ -87,6 +87,7 @@ def train_bnn(model, config, logger):
             outputs = model(image)
             loss = criterion(outputs, label)
             # loss = add_bnn_entropy_regularizer(loss, model, lambda_=config.lambda_)
+            loss = add_bnn_beta_regularizer(loss, model, lambda_=config.lambda_)
 
             loss.backward()
             optimizer.step()

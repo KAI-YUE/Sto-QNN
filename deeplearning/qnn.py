@@ -55,16 +55,13 @@ class BinaryNeuralNet(nn.Module):
         x = x.view(x.shape[0], self.in_channels, self.input_size, self.input_size)
         
         x = torch.tanh(self.bn1(self.conv1(x)))
-        # x = F.relu(self.bn1(self.conv1(x)))
         x = self.mp1(x)
         
         x = torch.tanh(self.bn2(self.conv2(x)))
-        # x = F.relu(self.bn2(self.conv2(x)))
         x = self.mp2(x)
         
         x = x.view(x.shape[0], -1)
         x = torch.tanh(self.fc1(x))
-        # x = F.relu(self.fc1(x))
         x = self.fc2(x)
         return x
 

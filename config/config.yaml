@@ -19,12 +19,12 @@ momentum: 0.9
 weight_decay: 0
 freeze_fc: true
 # regularizer
-lambda_: 0.5
+lambda_: 0.01
 
 
 # full precision model counterpart
 full_model: "type1"
-# full_weight_dir: "checkpoints/mnist_0.99.pth"
+# full_weight_dir: "checkpoints/fmnist_0.92.pth"
 full_weight_dir: ""
 
 # Simulation dataset configurations
@@ -32,10 +32,10 @@ full_weight_dir: ""
 # train_data_dir: the directory to the trainDataset
 # sample_size:   the size of one sample [height x width\num_of_features]
 # classes:      the number of classes
-# test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/test.dat
-# train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/train.dat
-test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/test.dat
-train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/train.dat
+test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/test.dat
+train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/train.dat
+# test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/test.dat
+# train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/train.dat
 sample_size:
 - 28
 - 28
