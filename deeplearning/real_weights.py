@@ -17,6 +17,6 @@ def init_weights(module, init_type='kaiming', gain=0.01):
         if hasattr(module, 'bias') and module.bias is not None:
             nn.init.constant_(module.bias.data, 0.0)
 
-    elif classname.find('BatchNorm2d') != -1:
+    elif (classname.find('BatchNorm2d') != -1 and module.weight != None):
         nn.init.normal_(module.weight.data, 1.0, gain)
         nn.init.constant_(module.bias.data, 0.0)

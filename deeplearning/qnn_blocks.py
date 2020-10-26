@@ -46,12 +46,9 @@ class TernaryConv2d(nn.Conv2d):
                                 self.stride, self.padding, self.dilation)
 
         # to prevent sqrt(x) yields inf grad at 0, filter out zero entries
-        non_zero_indices = (sigma_square != 0)
-        sigma = torch.zeros_like(sigma_square)
-        sigma[non_zero_indices] = sigma[non_zero_indices].sqrt()
 
         epsilon = torch.randn_like(mu)
-        out = mu + sigma*epsilon
+        out = mu + (sigma_square + 0.1).sqrt()*epsilon
 
         return out
 
@@ -89,12 +86,9 @@ class TernaryLinear(nn.Linear):
         sigma_square = F.linear(input**2, sigma_square)
 
         # to prevent sqrt(x) yields inf grad at 0, filter out zero entries
-        non_zero_indices = (sigma_square != 0)
-        sigma = torch.zeros_like(sigma_square)
-        sigma[non_zero_indices] = sigma_square[non_zero_indices].sqrt()
 
         epsilon = torch.randn_like(mu)
-        out = mu + sigma*epsilon
+        out = mu + (sigma_square + 0.1).sqrt()*epsilon
 
         return out
 

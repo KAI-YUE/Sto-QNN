@@ -3,18 +3,18 @@
 # mode 1: train the binary neural network
 # mode 2: train the full precision neural network
 device: cuda
-mode: 1
+mode: 0
 
 # hyperparameters and model type
 # model:            "ternary"
 # batch_size:       literal meaning
 # tau:              number of local iterations
 # momentum:         momentum settings for the optimizer
-qnn_model: "binary2"
-# qnn_model: "ternary"
-total_epoch: 40
+# qnn_model: "binary"
+qnn_model: "ternary"
+total_epoch: 20
 batch_size: 256
-lr: 0.001
+lr: 0.1
 momentum: 0.9
 weight_decay: 0
 freeze_fc: true
@@ -23,8 +23,9 @@ lambda_: 0.1
 
 
 # full precision model counterpart
-full_model: "type2"
-full_weight_dir: "checkpoints/fmnist_vgg.pth"
+full_model: "type1"
+# full_weight_dir: "checkpoints/fmnist1.pth"
+full_weight_dir: "/media/kaiyue/2D8A97B87FB4A806/Projects/bnn/ternary_oldcheckpoints/checkpoints/fmnist_bn3.pth"
 # full_weight_dir: ""
 
 # Simulation dataset configurations
