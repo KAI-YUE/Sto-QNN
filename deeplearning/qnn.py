@@ -292,7 +292,8 @@ def init_bnn_params(model, ref_model, **kwargs):
         method = kwargs["method"]
     else:
         # method = "probability"
-        method = "plain" 
+        # method = "plain"
+        method = "test" 
 
     ref_state_dict = ref_model.state_dict()
     model.load_state_dict(ref_state_dict)
@@ -317,7 +318,8 @@ def init_bnn_params(model, ref_model, **kwargs):
             prob_p1[idx] = p_min/2 + 0.5*(p_max - p_min/2)*(ref_w[idx] + 1) 
             
             module.weight.data = torch.log(-1 + 1/(1 - prob_p1))
-    else:
+    
+    elif method == "plain":
         for module_name, module in named_modules:
             if not hasattr(module, "weight"):
                 continue
@@ -330,3 +332,12 @@ def init_bnn_params(model, ref_model, **kwargs):
             # abs_normalized_w = normalized_w.abs()
 
             module.weight.data = torch.log(-1 + 2/(1 - normalized_w))
+
+    else:
+        for module_name, module in named_modules:
+            if not hasattr(module, "weight"):
+                continue
+            elif not hasattr(module.weight, "latent_param"):
+                continue
+            ref_w = ref_state_dict[module_name + ".weight"]
+            module.weight.data = torch.where(ref_w>0, torch.tensor(7.), torch.tensor(-7.))
