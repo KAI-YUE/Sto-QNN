@@ -10,32 +10,32 @@ mode: 1
 # batch_size:       literal meaning
 # tau:              number of local iterations
 # momentum:         momentum settings for the optimizer
-qnn_model: "binary"
+qnn_model: "binary2"
 # qnn_model: "ternary"
-total_epoch: 20
+total_epoch: 40
 batch_size: 256
 lr: 0.001
 momentum: 0.9
 weight_decay: 0
 freeze_fc: true
 # regularizer
-lambda_: 0.01
+lambda_: 0.1
 
 
 # full precision model counterpart
-full_model: "type1"
-# full_weight_dir: "checkpoints/fmnist_0.92.pth"
-full_weight_dir: ""
+full_model: "type2"
+full_weight_dir: "checkpoints/fmnist_vgg.pth"
+# full_weight_dir: ""
 
 # Simulation dataset configurations
 # test_data_dir : the directory to the testDataset
 # train_data_dir: the directory to the trainDataset
 # sample_size:   the size of one sample [height x width\num_of_features]
 # classes:      the number of classes
-test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/test.dat
-train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/train.dat
-# test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/test.dat
-# train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/train.dat
+# test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/test.dat
+# train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/train.dat
+test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/test.dat
+train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/train.dat
 sample_size:
 - 28
 - 28

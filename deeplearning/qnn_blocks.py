@@ -113,16 +113,16 @@ class BinaryConv2d(nn.Conv2d):
 
         mu = F.conv2d(input, mu, self.bias,
                       self.stride, self.padding, self.dilation)
-        sigma_square = F.conv2d(input**2, sigma_square, None)
+        sigma_square = F.conv2d(input**2+1e-6, sigma_square, None, 
+                      self.stride, self.padding, self.dilation)
         
-        # to prevent sqrt(x) yields inf grad at 0, filter out zero entries
-        # non_zero_indices = (sigma_square != 0)
-        # sigma = torch.zeros_like(sigma_square)
-        # sigma[non_zero_indices] = sigma_square[non_zero_indices].sqrt()
+        # remove pesudo negative values
+        # offset = sigma_square.min() - 1e-8
+        # sigma_square = torch.where(sigma_square>=0, sigma_square, sigma_square-offset)
+        # sigma_square[sigma_square<0] = 1e-6
 
         epsilon = torch.randn_like(mu)
-        out = mu + (sigma_square + 1e-6).sqrt()*epsilon
-        # out = mu
+        out = mu + (sigma_square + 0.1).sqrt()*epsilon
 
         return out
 
@@ -142,13 +142,11 @@ class BinaryLinear(nn.Linear):
         mu = F.linear(input, mu, self.bias)
         sigma_square = F.linear(input**2, sigma_square, None)
         
-        # to prevent sqrt(x) yields inf grad at 0, filter out zero entries
-        # non_zero_indices = (sigma_square != 0)
-        # sigma = torch.zeros_like(sigma_square)
-        # sigma[non_zero_indices] = sigma_square[non_zero_indices].sqrt()
+        # remove pesudo negative values
+        # zeros = torch.zeros_like(sigma_square, device=sigma_square.device)
+        # sigma_square = torch.where(sigma_square>=0, sigma_square, zeros+1e-6)
 
         epsilon = torch.randn_like(mu)
-        # out = mu + (sigma_square + 1e-6).sqrt()*epsilon
-        out = mu
+        out = mu + (sigma_square + 0.1).sqrt()*epsilon
 
         return out

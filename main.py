@@ -86,8 +86,8 @@ def train_bnn(model, config, logger):
             optimizer.zero_grad()
             outputs = model(image)
             loss = criterion(outputs, label)
-            # loss = add_bnn_entropy_regularizer(loss, model, lambda_=config.lambda_)
-            loss = add_bnn_beta_regularizer(loss, model, lambda_=config.lambda_)
+            loss = add_bnn_entropy_regularizer(loss, model, lambda_=config.lambda_)
+            # loss = add_bnn_beta_regularizer(loss, model, lambda_=config.lambda_)
 
             loss.backward()
             optimizer.step()
@@ -148,12 +148,18 @@ def train_full_model(model, config, logger):
 
                 logger.info("Train loss {:.4f}".format(loss))
                 logger.info("Test accuracy {:.4f}".format(test_acc))
-    
+
+        if epoch == 30:
+            optimizer = torch.optim.Adam(model.parameters(), lr=0.1*config.lr, weight_decay=config.weight_decay)
+
     torch.save(model.state_dict(), "full_model.pth")
 
 def main():
     config = load_config()
     logger = init_logger(config)
+
+    if config.device == "cuda":
+        torch.backends.cudnn.benchmark = True
 
     # ----------------------------
     # mode 0: train the quantized neural network
