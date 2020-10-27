@@ -43,18 +43,18 @@ class FullPrecisionNet_Type1(nn.Module):
         self.input_size = int(np.sqrt(in_dims/in_channels))
         
         self.conv1 = nn.Conv2d(self.in_channels, 64, kernel_size=5)
-        self.bn1 = nn.BatchNorm2d(64)
-        # self.bn1 = nn.BatchNorm2d(64, track_running_stats=False, affine=False)
+        # self.bn1 = nn.BatchNorm2d(64)
+        self.bn1 = nn.BatchNorm2d(64, track_running_stats=False, affine=False)
         self.mp1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
         self.conv2 = nn.Conv2d(64, 128, kernel_size=5)
-        self.bn2 = nn.BatchNorm2d(128)
-        # self.bn2 = nn.BatchNorm2d(128, track_running_stats=False, affine=False)
+        # self.bn2 = nn.BatchNorm2d(128)
+        self.bn2 = nn.BatchNorm2d(128, track_running_stats=False, affine=False)
         self.mp2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
         self.fc1 = nn.Linear(2048, 512)
-        self.bn3 = nn.BatchNorm1d(512)
-        # self.bn3 = nn.BatchNorm1d(512, track_running_stats=False, affine=False)
+        # self.bn3 = nn.BatchNorm1d(512)
+        self.bn3 = nn.BatchNorm1d(512, track_running_stats=False, affine=False)
         self.fc2 = nn.Linear(512, out_dims)
 
     # 32C3 - MP2 - 64C3 - Mp2 - 512FC - SM10c

@@ -21,7 +21,7 @@ def train_qnn(model, config, logger):
     optimizer = torch.optim.Adam(model.latent_parameters(), lr=config.lr, weight_decay=config.weight_decay)
     # optimizer = torch.optim.SGD(model.latent_parameters(), lr=config.lr)
 
-    # before optimization, report the result first 
+    # before optimization, report the result first
     with torch.no_grad():
         # validate the model and log test accuracy
         loss = train_loss(model, dataset["train_data"], dataset_type, device=config.device)
@@ -54,7 +54,7 @@ def train_qnn(model, config, logger):
                 logger.info("Train loss {:.4f}".format(loss))
                 logger.info("Test accuracy {:.4f}".format(test_acc))
                 logger.info("Sampled QNN Test accuracy {:.4f}".format(sampled_qnn_acc))
-
+    
 def train_bnn(model, config, logger):
     device = config.device
     dataset = load_data(config)

@@ -66,7 +66,7 @@ class TernaryLinear(nn.Linear):
         """
         # initialize the latent variable
         weight_shape = torch.tensor(self.weight.shape).tolist()
-        weight_shape.append(3)
+        weight_shape.append(2)
         self.weight.latent_param = torch.zeros(weight_shape, requires_grad=True)
 
     def _apply(self, fn):

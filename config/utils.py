@@ -205,6 +205,7 @@ def init_qnn(config, logger):
         full_model.apply(init_weights)
 
     init_latent_params(sto_qnn, full_model)
+    sto_qnn.freeze_weight()
     sto_qnn = sto_qnn.to(config.device)
     return sto_qnn
 

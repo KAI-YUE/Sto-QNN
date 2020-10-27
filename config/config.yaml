@@ -14,7 +14,7 @@ mode: 0
 qnn_model: "ternary"
 total_epoch: 20
 batch_size: 256
-lr: 0.1
+lr: 0.05
 momentum: 0.9
 weight_decay: 0
 freeze_fc: true
@@ -25,8 +25,8 @@ lambda_: 0.1
 # full precision model counterpart
 full_model: "type1"
 # full_weight_dir: "checkpoints/fmnist1.pth"
-full_weight_dir: "/media/kaiyue/2D8A97B87FB4A806/Projects/bnn/ternary_oldcheckpoints/checkpoints/fmnist_bn3.pth"
-# full_weight_dir: ""
+# full_weight_dir: "/media/kaiyue/2D8A97B87FB4A806/Projects/bnn/ternary_oldcheckpoints/checkpoints/mnist_bn3.pth"
+full_weight_dir: ""
 
 # Simulation dataset configurations
 # test_data_dir : the directory to the testDataset
