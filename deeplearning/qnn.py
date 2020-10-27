@@ -16,18 +16,15 @@ class TernaryNeuralNet(StoQNN):
         self.input_size = int(np.sqrt(in_dims/in_channels))
         
         self.conv1 = TernaryConv2d(self.in_channels, 64, kernel_size=5)
-        # self.bn1 = nn.BatchNorm2d(64, track_running_stats=False)
-        self.bn1 = nn.BatchNorm2d(64, track_running_stats=False, affine=False)
+        self.bn1 = nn.BatchNorm2d(64, track_running_stats=False)
         self.mp1= nn.MaxPool2d(kernel_size=2, stride=2)
         
         self.conv2 = TernaryConv2d(64, 128, kernel_size=5)
-        # self.bn2 = nn.BatchNorm2d(128, track_running_stats=False)
-        self.bn2 = nn.BatchNorm2d(128, track_running_stats=False, affine=False)
+        self.bn2 = nn.BatchNorm2d(128, track_running_stats=False)
         self.mp2= nn.MaxPool2d(kernel_size=2, stride=2)
 
         self.fc1 = TernaryLinear(2048, 512)
-        # self.bn3 = nn.BatchNorm1d(512, track_running_stats=False)
-        self.bn3 = nn.BatchNorm1d(512, track_running_stats=False, affine=False)
+        self.bn3 = nn.BatchNorm1d(512, track_running_stats=False)
         self.fc2 = nn.Linear(512, out_dims)
 
     # 32C3 - MP2 - 64C3 - Mp2 - 512FC - SM10c
@@ -110,11 +107,9 @@ class BinaryNeuralNet_Type2(nn.Module):
         self.conv_block1 = nn.Sequential(
             BinaryConv2d(self.in_channels, 64, kernel_size=3),
             nn.BatchNorm2d(64),
-            # nn.Tanh(),
             nn.ReLU(),
             BinaryConv2d(64, 128, kernel_size=3),
             nn.BatchNorm2d(128),
-            # nn.Tanh(),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2)
             )
@@ -122,11 +117,9 @@ class BinaryNeuralNet_Type2(nn.Module):
         self.conv_block2 = nn.Sequential(
             BinaryConv2d(128, 256, kernel_size=3),
             nn.BatchNorm2d(256),
-            # nn.Tanh(),
             nn.ReLU(),
             BinaryConv2d(256, 256, kernel_size=3),
             nn.BatchNorm2d(256),
-            # nn.Tanh(),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
@@ -134,7 +127,6 @@ class BinaryNeuralNet_Type2(nn.Module):
         self.conv_block3 = nn.Sequential(
             BinaryConv2d(256, 512, kernel_size=3),
             nn.BatchNorm2d(512),
-            # nn.Tanh(),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
