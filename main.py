@@ -54,7 +54,9 @@ def train_qnn(model, config, logger):
                 logger.info("Train loss {:.4f}".format(loss))
                 logger.info("Test accuracy {:.4f}".format(test_acc))
                 logger.info("Sampled QNN Test accuracy {:.4f}".format(sampled_qnn_acc))
-    
+
+    torch.save(model.latent_param_dict(), "tnn.pth")
+
 def train_bnn(model, config, logger):
     device = config.device
     dataset = load_data(config)
@@ -148,9 +150,6 @@ def train_full_model(model, config, logger):
 
                 logger.info("Train loss {:.4f}".format(loss))
                 logger.info("Test accuracy {:.4f}".format(test_acc))
-
-        if epoch == 15:
-            optimizer = torch.optim.Adam(model.parameters(), lr=0.1*config.lr, weight_decay=config.weight_decay)
 
     torch.save(model.state_dict(), "full_model.pth")
 

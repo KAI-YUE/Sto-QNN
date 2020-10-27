@@ -15,7 +15,7 @@ class StoQNN(ABC, nn.Module):
             yield module.weight.latent_param
 
     def latent_param_dict(self):
-        latent_params = OrderedDict()
+        lparam_dict = OrderedDict()
         named_modules = self.named_modules()
         next(named_modules)
 
@@ -25,12 +25,12 @@ class StoQNN(ABC, nn.Module):
             elif not hasattr(module.weight, "latent_param"):
                 continue
 
-            latent_params[module_name + ".latent_param"] = module.weight.latent_param
+            lparam_dict[module_name + "weight.latent_param"] = module.weight.latent_param
 
-        return latent_params
+        return lparam_dict
 
-    def load_latent_param_dict(self, latent_params):
-        for latent_param_name, latent_param in latent_params.items():
+    def load_latent_param_dict(self, lparam_dict):
+        for latent_param_name, latent_param in lparam_dict.items():
             exec("self.{:s} = latent_param".format(latent_param_name))
 
     def freeze_weight(self):

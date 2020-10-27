@@ -41,7 +41,7 @@ class TernaryConv2d(nn.Conv2d):
         sigma_square = theta[..., 1]  + theta[..., 0] - mu**2
 
         mu = F.conv2d(input, mu, self.bias, 
-                        self.stride, self.padding, self.dilation)
+                      self.stride, self.padding, self.dilation)
         sigma_square = F.conv2d(input**2, sigma_square, None, 
                                 self.stride, self.padding, self.dilation)
 
