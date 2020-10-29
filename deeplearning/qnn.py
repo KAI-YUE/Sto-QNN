@@ -91,7 +91,7 @@ class BinaryNeuralNet(nn.Module):
         self.fc2.weight.requires_grad = False
         self.fc2.bias.requires_grad = False
 
-    def freeze_bn(self):
+    def freeze_norm_layers(self):
         self.bn1.weight.requires_grad = False
         self.bn1.bias.requires_grad = False
 
@@ -162,63 +162,44 @@ class BinaryNeuralNet_Type2(nn.Module):
         self.fc2.weight.requires_grad = False
         self.fc2.bias.requires_grad = False
 
-class CompleteBinaryNeuralNet(nn.Module):
-    def __init__(self, in_dims, in_channels, out_dims=10):
-        super(CompleteBinaryNeuralNet, self).__init__()
-        self.in_channels = in_channels
-        self.input_size = int(np.sqrt(in_dims/in_channels))
-        
-        self.conv1 = BinaryConv2d(self.in_channels, 64, kernel_size=5)
-        self.bn1 = nn.BatchNorm2d(64)
-        self.mp1= nn.MaxPool2d(kernel_size=2, stride=2)
-        
-        self.conv2 = BinaryConv2d(64, 128, kernel_size=5)
-        self.bn2 = nn.BatchNorm2d(128)
-        self.mp2= nn.MaxPool2d(kernel_size=2, stride=2)
-        
-        self.fc1 = BinaryLinear(2048, 512)
-        self.bn3 = nn.BatchNorm1d(512)
-        self.fc2 = BinaryLinear(512, out_dims)
-
-    def forward(self, x):
-        x = x.view(x.shape[0], self.in_channels, self.input_size, self.input_size)
-        
-        x = torch.relu(self.bn1(self.conv1(x)))
-        x = self.mp1(x)
-        
-        x = torch.relu(self.bn2(self.conv2(x)))
-        x = self.mp2(x)
-        
-        x = x.view(x.shape[0], -1)
-        x = torch.relu(self.bn3(self.fc1(x)))
-        # x = torch.relu(self.fc1(x))
-        x = self.fc2(x)
-        return x
-
 class CompleteTernaryNeuralNet(StoQNN):
-    def __init__(self, in_dims, in_channels, out_dims=10):
+    def __init__(self, in_dims, in_channels, out_dims=10):  
         super(CompleteTernaryNeuralNet, self).__init__()
         self.in_channels = in_channels
         self.input_size = int(np.sqrt(in_dims/in_channels))
         
-        self.conv1 = TernaryConv2d(self.in_channels, 32, kernel_size=5)
+        self.conv1 = TernaryConv2d(self.in_channels, 64, kernel_size=5)
+        # self.bn1 = nn.BatchNorm2d(64, track_running_stats=False)
+        self.bn1 = nn.BatchNorm2d(64, track_running_stats=False, affine=False)
         self.mp1= nn.MaxPool2d(kernel_size=2, stride=2)
-        self.conv2 = TernaryConv2d(32, 64, kernel_size=5)
+        
+        self.conv2 = TernaryConv2d(64, 128, kernel_size=5)
+        # self.bn2 = nn.BatchNorm2d(128, track_running_stats=False)
+        self.bn2 = nn.BatchNorm2d(128, track_running_stats=False, affine=False)
         self.mp2= nn.MaxPool2d(kernel_size=2, stride=2)
-        self.fc1 = TernaryLinear(1024, 512)
+
+        self.fc1 = TernaryLinear(2048, 512)
+        # self.bn3 = nn.BatchNorm1d(512, track_running_stats=False)
+        self.bn3 = nn.BatchNorm1d(512, track_running_stats=False, affine=False)
         self.fc2 = TernaryLinear(512, out_dims)
 
     # 32C3 - MP2 - 64C3 - Mp2 - 512FC - SM10c
     def forward(self, x):
         x = x.view(x.shape[0], self.in_channels, self.input_size, self.input_size)
-        x = F.relu(self.conv1(x))
+        x = F.relu(self.bn1(self.conv1(x)))
         x = self.mp1(x)
-        x = F.relu(self.conv2(x))
+
+        x = F.relu(self.bn2(self.conv2(x)))
         x = self.mp2(x)
+        
         x = x.view(x.shape[0], -1)
-        x = F.relu(self.fc1(x))
+        x = F.relu(self.bn3(self.fc1(x)))
         x = self.fc2(x)
         return x
+
+    def freeze_final_layer(self):
+        self.fc2.weight.requires_grad = False
+        self.fc2.bias.requires_grad = False
 
 # initialization method reference 
 # Roth, Wolfgang, Günther Schindler, Holger Fröning, and Franz Pernkopf. 
@@ -262,6 +243,8 @@ def init_latent_params(model, ref_model, **kwargs):
             
             # pr(w_q = -1)
             ref_w = ref_state_dict[module_name + ".weight"]
+            ref_w = 0.8*ref_w/ref_w.std()
+
             idx = torch.logical_and(ref_w >-1, ref_w<=0)
             prob_m1 = torch.where(ref_w <= -1, p_max, ref_w)
             prob_m1 = torch.where(ref_w > 0, p_min/2, prob_m1)
