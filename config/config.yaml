@@ -3,7 +3,7 @@
 # mode 1: train the binary neural network
 # mode 2: train the full precision neural network
 device: cuda
-mode: 0
+mode: 1
 
 # hyperparameters and model type
 # model:            "ternary"
@@ -11,22 +11,30 @@ mode: 0
 # tau:              number of local iterations
 # momentum:         momentum settings for the optimizer
 # qnn_model: "binary"
-qnn_model: "ternary"
-total_epoch: 20
+# qnn_model: "ternary"
+# qnn_model: "tgn1"
+qnn_model: "binary1"
+# qnn_model: "binary_complete"
+# qnn_model: "ternary_complete"
+total_epoch: 10
 batch_size: 256
+# lr: 0.0005
+# lr: 0.1
 lr: 0.05
 momentum: 0.9
-weight_decay: 0
+weight_decay: 1.e-10
 freeze_fc: true
 # regularizer
 lambda_: 0.1
 
 
 # full precision model counterpart
-full_model: "type1"
-# full_weight_dir: "checkpoints/fmnist1.pth"
-# full_weight_dir: "/media/kaiyue/2D8A97B87FB4A806/Projects/bnn/ternary_oldcheckpoints/checkpoints/mnist_bn3.pth"
+full_model: "bn1"
+# full_model: "gn1"
+# full_model: "type2"
 full_weight_dir: ""
+# full_weight_dir: "checkpoints/fmnist_bn.pth"
+full_weight_dir: "/media/kaiyue/2D8A97B87FB4A806/Datasets/heuristic/full_init.pth"
 
 # Simulation dataset configurations
 # test_data_dir : the directory to the testDataset
@@ -43,7 +51,7 @@ sample_size:
 channels: 1
 classes: 10
 
-# record_dir:     ../This{}.dat
+record_dir:     ../This{}.dat
 # test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/cifar-10-python/test.dat
 # train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/cifar-10-python/train.dat
 # sample_size:

@@ -11,8 +11,6 @@ from torch.utils.data import DataLoader
 
 # My Libraries
 from deeplearning import nn_registry
-from deeplearning.qnn import init_latent_params, init_bnn_params
-from deeplearning.real_weights import init_weights
 from deeplearning.dataset import CustomizedDataset
 
 def load_data(config):
@@ -53,11 +51,9 @@ def init_logger(config):
     return logger
 
 def save_record(config, record):
-    record["cumulated_KB"].pop(0)
     current_path = os.path.dirname(__file__)
     current_time = datetime.datetime.now()
     current_time_str = datetime.datetime.strftime(current_time ,'%H_%M')
-    current_time_str += str(config.delta_k)
     file_name = config.record_dir.format(current_time_str)
     with open(os.path.join(current_path, file_name), "wb") as fp:
         pickle.dump(record, fp)
@@ -148,17 +144,17 @@ def test_bnn_accuracy(bnn_model, test_dataset, device, config, logger):
             elif not hasattr(module.weight, "latent_param"):
                 continue
 
-            sampled_bnn_state_dict[module_name + ".weight"] = module.weight.sign()
+            sampled_bnn_state_dict[module_name + ".weight"] = module.weight.latent_param.sign()
             prob = torch.sigmoid(module.weight)
-            entropy -= torch.sum(prob*torch.log(prob) + (1-prob)*torch.log(1-prob)) 
+            # entropy -= torch.sum(prob*torch.log(prob) + (1-prob)*torch.log(1-prob)) 
             
-            # rand_variable = torch.rand_like(module.weight)
-            # prob_equal_one = torch.sigmoid(module.weight)
-            # ones_tensor = torch.ones_like(module.weight)
-            # zeros_tensor = torch.zeros_like(module.weight)
+            # rand_variable = torch.rand_like(module.weight.latent_param)
+            # prob_equal_one = torch.sigmoid(module.weight.latent_param)
+            # ones_tensor = torch.ones_like(module.weight.latent_param)
+            # zeros_tensor = torch.zeros_like(module.weight.latent_param)
             # sampled_bnn_state_dict[module_name + ".weight"] = torch.where(rand_variable < prob_equal_one, ones_tensor, -ones_tensor)
 
-        logger.info("Entropy: {:.3f}".format(entropy))
+        # logger.info("Entropy: {:.3f}".format(entropy))
 
         sampled_bnn.load_state_dict(sampled_bnn_state_dict)
         sampled_bnn = sampled_bnn.to(device)
@@ -190,73 +186,16 @@ def train_loss(model, train_dataset, type_, device="cuda"):
 def count_parameters(qnn_model):
     return sum(p.numel() for p in qnn_model.parameters() if p.requires_grad)
 
-def init_qnn(config, logger):
-    # initialize the qnn_model
-    sample_size = config.sample_size[0] * config.sample_size[1]
-    full_model = nn_registry[config.full_model](in_dims=sample_size*config.channels, in_channels=config.channels)
-    sto_qnn = nn_registry[config.qnn_model](in_dims=sample_size*config.channels, in_channels=config.channels)
-    
-    if os.path.exists(config.full_weight_dir):
-        logger.info("--- Load pre-trained full precision model. ---")
-        state_dict = torch.load(config.full_weight_dir)
-        full_model.load_state_dict(state_dict)
-    else:
-        logger.info("--- Train quantized qnn_model from scratch. ---")
-        full_model.apply(init_weights)
-
-    init_latent_params(sto_qnn, full_model)
-    sto_qnn.freeze_weight()
-    sto_qnn = sto_qnn.to(config.device)
-    return sto_qnn
-
-def init_bnn(config, logger):
-    # initialize the bnn_model
-    sample_size = config.sample_size[0] * config.sample_size[1]
-    full_model = nn_registry[config.full_model](in_dims=sample_size*config.channels, in_channels=config.channels)
-    sto_bnn = nn_registry[config.qnn_model](in_dims=sample_size*config.channels, in_channels=config.channels)
-    
-    if os.path.exists(config.full_weight_dir):
-        logger.info("--- Load pre-trained full precision model. ---")
-        state_dict = torch.load(config.full_weight_dir)
-        full_model.load_state_dict(state_dict)
-    else:
-        logger.info("--- Train quantized bnn_model from scratch. ---")
-        full_model.apply(init_weights)
-
-    init_bnn_params(sto_bnn, full_model)
-
-    if config.freeze_fc:
-        sto_bnn.freeze_final_layer()
-
-    sto_bnn = sto_bnn.to(config.device)
-    return sto_bnn
-
-def init_full_model(config, logger):
-    # initialize the qnn_model
-    logger.info("--- Train full precision model from scratch. ---")
-    sample_size = config.sample_size[0] * config.sample_size[1]
-    full_model = nn_registry[config.full_model](in_dims=sample_size*config.channels, in_channels=config.channels)
-    full_model.apply(init_weights)
-    full_model = full_model.to(config.device)
-    return full_model
-
-def init_record(config, qnn_model):
+def init_record(config):
     record = {}
-    # number of trainable parameters
-    record["num_parameters"] = count_parameters(qnn_model)
 
     # put some config info into record
-    record["tau"] = config.tau
-    record["batch_size"] = config.local_batch_size
+    record["batch_size"] = config.batch_size
     record["lr"] = config.lr
-
-    if config.predictor == "delta_step":
-        record["delta_k"] = config.delta_k
 
     # initialize data record 
     record["testing_accuracy"] = []
-    record["residuals"] = []
-    record["quant_error"] = []
+    record["sampled_accuracy"] = []
     record["loss"] = []
 
     return record

@@ -25,7 +25,7 @@ class StoQNN(ABC, nn.Module):
             elif not hasattr(module.weight, "latent_param"):
                 continue
 
-            lparam_dict[module_name + "weight.latent_param"] = module.weight.latent_param
+            lparam_dict[module_name + ".weight.latent_param"] = module.weight.latent_param
 
         return lparam_dict
 
@@ -39,15 +39,25 @@ class StoQNN(ABC, nn.Module):
 
 from deeplearning.qnn_blocks import *
 from deeplearning.qnn import *
+from deeplearning.qnn_gn import *
 from deeplearning.networks import *
 from deeplearning.dataset import CustomizedDataset
 
 nn_registry = {
     "ternary":          TernaryNeuralNet,
-    "binary":           BinaryNeuralNet,
+    "tgn1":             TernaryNeuralNet_GN_Type1,
+    "tgn2":             TernaryNeuralNet_GN_Type2,
+
+    "binary1":          BinaryNeuralNet_Type1,
     "binary2":          BinaryNeuralNet_Type2,
-    "complete_ternary": CompleteTernaryNeuralNet,
-    "complete_binary":  CompleteBinaryNeuralNet,
-    "type1":            FullPrecisionNet_Type1,
-    "type2":            FullPrecisionNet_Type2
+    "binary":           BinaryNeuralNet_noBN,
+
+    "binary_complete":  BinaryNeuralNet_Complete,
+
+    "ternary_complete": TernaryNeuralNet_Complete,
+    
+    "bn1":            FullPrecisionNet_BN1,
+    "bn2":            FullPrecisionNet_BN2,
+    "gn1":              FullPrecisionNet_GN_Type1,
+    "gn2":              FullPrecisionNet_GN_Type2 
 }
