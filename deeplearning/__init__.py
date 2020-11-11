@@ -47,11 +47,17 @@ nn_registry = {
     "ternary":          TernaryNeuralNet,
     "tgn1":             TernaryNeuralNet_GN_Type1,
     "tgn2":             TernaryNeuralNet_GN_Type2,
-    "binary":           BinaryNeuralNet,
+
+    "binary1":          BinaryNeuralNet_Type1,
     "binary2":          BinaryNeuralNet_Type2,
-    "complete_ternary": CompleteTernaryNeuralNet,
-    "type1":            FullPrecisionNet_Type1,
+    "binary":           BinaryNeuralNet_noBN,
+
+    "binary_complete":  BinaryNeuralNet_Complete,
+
+    "ternary_complete": TernaryNeuralNet_Complete,
+    
+    "bn1":            FullPrecisionNet_BN1,
+    "bn2":            FullPrecisionNet_BN2,
     "gn1":              FullPrecisionNet_GN_Type1,
-    "gn2":              FullPrecisionNet_GN_Type2,
-    "type2":            FullPrecisionNet_Type2
+    "gn2":              FullPrecisionNet_GN_Type2 
 }

@@ -96,12 +96,26 @@ class BinaryConv2d(nn.Conv2d):
     def __init__(self, *kargs, **kwargs):
         super(BinaryConv2d, self).__init__(*kargs, **kwargs)
         self.latentdim = 2
+        self._init_latent_param()
+        self.weight.requires_grad = False
         self.bias.requires_grad = False
-        self.weight.latent_param = "overlap_with_weight"
     
+    def _init_latent_param(self):
+        """Initialize the placeholders for the multinomial distribution paramters.
+        """
+        # initialize the latent variable
+        self.weight.latent_param = torch.zeros_like(self.weight, requires_grad=True)
+
+    def _apply(self, fn):
+        # super(TernaryConv2d, self)._apply(fn)
+        self.weight.latent_param.data = fn(self.weight.latent_param.data)
+        self.bias.data = fn(self.bias.data)
+
+        return self
+
     def forward(self, input):
         # theta = activate_fun(w) = 1/2*tanh(w) + 1/2
-        theta = torch.sigmoid(self.weight)
+        theta = torch.sigmoid(self.weight.latent_param)
         mu = 2*theta - 1
         sigma_square = 1 - mu**2
 
@@ -110,11 +124,6 @@ class BinaryConv2d(nn.Conv2d):
         sigma_square = F.conv2d(input**2+1e-6, sigma_square, None, 
                       self.stride, self.padding, self.dilation)
         
-        # remove pesudo negative values
-        # offset = sigma_square.min() - 1e-8
-        # sigma_square = torch.where(sigma_square>=0, sigma_square, sigma_square-offset)
-        # sigma_square[sigma_square<0] = 1e-6
-
         epsilon = torch.randn_like(mu)
         out = mu + (sigma_square + 0.1).sqrt()*epsilon
 
@@ -124,22 +133,32 @@ class BinaryLinear(nn.Linear):
     def __init__(self, *kargs, **kwargs):
         super(BinaryLinear, self).__init__(*kargs, **kwargs)
         self.latentdim = 2
+        self._init_latent_param()
+        self.weight.requires_grad = False
         self.bias.requires_grad = False
-        self.weight.latent_param = "overlap_with_weight"
+
+    def _init_latent_param(self):
+        """Initialize the placeholders for the multinomial distribution paramters.
+        """
+        # initialize the latent variable
+        self.weight.latent_param = torch.zeros_like(self.weight, requires_grad=True)
+
+    def _apply(self, fn):
+        # super(TernaryConv2d, self)._apply(fn)
+        self.weight.latent_param.data = fn(self.weight.latent_param.data)
+        self.bias.data = fn(self.bias.data)
+
+        return self
 
     def forward(self, input):
-        # theta = activate_fun(w) = 1/2*tanh(w) + 1/2
-        theta = torch.sigmoid(self.weight)
+        # theta = activate_fun(w) 
+        theta = torch.sigmoid(self.weight.latent_param)
         mu = 2*theta - 1
         sigma_square = 1 - mu**2
 
         mu = F.linear(input, mu, self.bias)
         sigma_square = F.linear(input**2, sigma_square, None)
         
-        # remove pesudo negative values
-        # zeros = torch.zeros_like(sigma_square, device=sigma_square.device)
-        # sigma_square = torch.where(sigma_square>=0, sigma_square, zeros+1e-6)
-
         epsilon = torch.randn_like(mu)
         out = mu + (sigma_square + 0.1).sqrt()*epsilon
 
