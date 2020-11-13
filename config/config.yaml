@@ -16,7 +16,7 @@ mode: 1
 qnn_model: "binary1"
 # qnn_model: "binary_complete"
 # qnn_model: "ternary_complete"
-total_epoch: 10
+total_epoch: 20
 batch_size: 256
 # lr: 0.0005
 # lr: 0.1
