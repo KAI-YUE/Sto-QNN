@@ -185,8 +185,8 @@ def main():
         bnn = init_bnn(config, logger)
 
         # bnn_latent_param = torch.load("/media/kaiyue/2D8A97B87FB4A806/Datasets/tmodels/vote10.pth")
-        bnn_latent_param = torch.load("/media/kaiyue/2D8A97B87FB4A806/Datasets/mmodels/bnn_modified.pth")
-        bnn.load_latent_param_dict(bnn_latent_param)
+        # bnn_latent_param = torch.load("/media/kaiyue/2D8A97B87FB4A806/Datasets/vote.pth")
+        # bnn.load_latent_param_dict(bnn_latent_param)
 
         train_bnn(bnn, config, logger, record)
     elif config.mode == 2:

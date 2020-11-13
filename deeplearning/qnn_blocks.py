@@ -117,15 +117,19 @@ class BinaryConv2d(nn.Conv2d):
         # theta = activate_fun(w) = 1/2*tanh(w) + 1/2
         theta = torch.sigmoid(self.weight.latent_param)
         mu = 2*theta - 1
-        sigma_square = 1 - mu**2
+        # sigma_square = 1 - mu**2
+
+        # mu = F.conv2d(input, mu, self.bias,
+        #               self.stride, self.padding, self.dilation)
+        # sigma_square = F.conv2d(input**2+1e-6, sigma_square, None, 
+        #               self.stride, self.padding, self.dilation)
+        
+        # epsilon = torch.randn_like(mu)
+        # out = mu + (sigma_square + 0.1).sqrt()*epsilon
 
         mu = F.conv2d(input, mu, self.bias,
                       self.stride, self.padding, self.dilation)
-        sigma_square = F.conv2d(input**2+1e-6, sigma_square, None, 
-                      self.stride, self.padding, self.dilation)
-        
-        epsilon = torch.randn_like(mu)
-        out = mu + (sigma_square + 0.1).sqrt()*epsilon
+        out = mu
 
         return out
 
@@ -154,12 +158,15 @@ class BinaryLinear(nn.Linear):
         # theta = activate_fun(w) 
         theta = torch.sigmoid(self.weight.latent_param)
         mu = 2*theta - 1
-        sigma_square = 1 - mu**2
+        # sigma_square = 1 - mu**2
+
+        # mu = F.linear(input, mu, self.bias)
+        # sigma_square = F.linear(input**2, sigma_square, None)
+        
+        # epsilon = torch.randn_like(mu)
+        # out = mu + (sigma_square + 0.1).sqrt()*epsilon
 
         mu = F.linear(input, mu, self.bias)
-        sigma_square = F.linear(input**2, sigma_square, None)
-        
-        epsilon = torch.randn_like(mu)
-        out = mu + (sigma_square + 0.1).sqrt()*epsilon
+        out = mu
 
         return out

@@ -3,7 +3,7 @@
 # mode 1: train the binary neural network
 # mode 2: train the full precision neural network
 device: cuda
-mode: 1
+mode: 2
 
 # hyperparameters and model type
 # model:            "ternary"
@@ -16,11 +16,11 @@ mode: 1
 qnn_model: "binary1"
 # qnn_model: "binary_complete"
 # qnn_model: "ternary_complete"
-total_epoch: 10
+total_epoch: 20
 batch_size: 256
-# lr: 0.0005
+lr: 0.0005
 # lr: 0.1
-lr: 0.05
+# lr: 0.05
 momentum: 0.9
 weight_decay: 1.e-10
 freeze_fc: true
@@ -34,7 +34,7 @@ full_model: "bn1"
 # full_model: "type2"
 full_weight_dir: ""
 # full_weight_dir: "checkpoints/fmnist_bn.pth"
-full_weight_dir: "/media/kaiyue/2D8A97B87FB4A806/Datasets/heuristic/full_init.pth"
+# full_weight_dir: "/media/kaiyue/2D8A97B87FB4A806/Datasets/heuristic/full_init.pth"
 
 # Simulation dataset configurations
 # test_data_dir : the directory to the testDataset
