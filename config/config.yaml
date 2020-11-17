@@ -3,7 +3,7 @@
 # mode 1: train the binary neural network
 # mode 2: train the full precision neural network
 device: cuda
-mode: 1
+mode: 2
 
 # hyperparameters and model type
 # model:            "ternary"
@@ -11,16 +11,16 @@ mode: 1
 # tau:              number of local iterations
 # momentum:         momentum settings for the optimizer
 # qnn_model: "binary"
-# qnn_model: "ternary"
+qnn_model: "ternary"
 # qnn_model: "tgn1"
-qnn_model: "binary1"
+# qnn_model: "binary1"
 # qnn_model: "binary_complete"
 # qnn_model: "ternary_complete"
 total_epoch: 10
 batch_size: 256
 # lr: 0.0005
 # lr: 0.1
-lr: 0.1
+lr: 0.05
 momentum: 0.9
 weight_decay: 1.e-10
 freeze_fc: true
