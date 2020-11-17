@@ -44,9 +44,9 @@ from deeplearning.networks import *
 from deeplearning.dataset import CustomizedDataset
 
 nn_registry = {
-    "ternary":          TernaryNeuralNet,
+    "ternary":          TernaryNeuralNet_noBN,
     "tgn1":             TernaryNeuralNet_GN_Type1,
-    "tgn2":             TernaryNeuralNet_GN_Type2,
+    "tgn2":             TernaryNeuralNet_bn2,
 
     "binary1":          BinaryNeuralNet_Type1,
     "binary2":          BinaryNeuralNet_Type2,

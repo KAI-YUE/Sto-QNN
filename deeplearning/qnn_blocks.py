@@ -117,6 +117,7 @@ class BinaryConv2d(nn.Conv2d):
         # theta = activate_fun(w) = 1/2*tanh(w) + 1/2
         theta = torch.sigmoid(self.weight.latent_param)
         mu = 2*theta - 1
+        # mu = 1 - 2*theta
         sigma_square = 1 - mu**2
 
         mu = F.conv2d(input, mu, self.bias,
@@ -154,6 +155,7 @@ class BinaryLinear(nn.Linear):
         # theta = activate_fun(w) 
         theta = torch.sigmoid(self.weight.latent_param)
         mu = 2*theta - 1
+        # mu = 1-2*theta
         sigma_square = 1 - mu**2
 
         mu = F.linear(input, mu, self.bias)

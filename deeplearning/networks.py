@@ -71,6 +71,8 @@ class FullPrecisionNet_GN_Type2(nn.Module):
         return x
 
 
+
+
 class FullPrecisionNet_BN1(nn.Module):
     def __init__(self, in_dims, in_channels, out_dims=10):
         super(FullPrecisionNet_BN1, self).__init__()
