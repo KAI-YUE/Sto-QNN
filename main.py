@@ -108,6 +108,7 @@ def train_bnn(model, config, logger, record):
                 logger.info("Train loss {:.4f}".format(loss))
                 logger.info("Test accuracy {:.4f}".format(test_acc))
                 logger.info("Sampled BNN accuracy {:.4f}".format(sampled_bnn_acc))
+                # torch.save(model.latent_param_dict(), "models/bnn_{}_{}.pth".format(epoch, iteration))
         
         if epoch == 10:
             optimizer = torch.optim.Adam(model.latent_parameters(), lr=0.1*config.lr, weight_decay=config.weight_decay)
@@ -186,14 +187,21 @@ def main():
 
         # bnn_latent_param = torch.load("/media/kaiyue/2D8A97B87FB4A806/Datasets/tmodels/vote10.pth")
         # bnn_latent_param = torch.load("/media/kaiyue/2D8A97B87FB4A806/Datasets/vote.pth")
-        # bnn.load_latent_param_dict(bnn_latent_param)
+        # bnn_latent_param = torch.load("bnn.pth")
+        bnn_latent_param = torch.load("/media/kaiyue/2D8A97B87FB4A806/Datasets/mmodels/bnn_modified.pth")
+        bnn.load_latent_param_dict(bnn_latent_param)
 
         train_bnn(bnn, config, logger, record)
     elif config.mode == 2:
         model = init_full_model(config, logger)
+        
+        state_dict = torch.load("/media/kaiyue/2D8A97B87FB4A806/Datasets/heuristic/full_modified.pth")
+        model.load_state_dict(state_dict)
+        config.total_epoch = 1
+
         train_full_model(model, config, logger, record)
 
-    save_record(config, record)
+    # save_record(config, record)
     
 if __name__ == '__main__':
     main()

@@ -23,8 +23,9 @@ def load_data(config):
     # with open("/media/kaiyue/2D8A97B87FB4A806/Datasets/user_with_data/iid_map.dat", "rb") as fp:
     #     user_dataidx_map = pickle.load(fp)
 
-    # train_data["images"] = train_data["images"][user_dataidx_map[0]]
-    # train_data["labels"] = train_data["labels"][user_dataidx_map[0]]
+    # user_id = config.user_id
+    # train_data["images"] = train_data["images"][user_dataidx_map[user_id]]
+    # train_data["labels"] = train_data["labels"][user_dataidx_map[user_id]]
 
     return dict(train_data=train_data, test_data=test_data)
 
