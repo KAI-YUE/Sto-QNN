@@ -4,7 +4,6 @@
 # mode 2: train the full precision neural network
 device: cuda
 mode: 1
-user_id: 6
 
 # hyperparameters and model type
 # model:            "ternary"
@@ -24,7 +23,7 @@ batch_size: 256
 lr: 0.1
 momentum: 0.9
 weight_decay: 1.e-10
-freeze_fc: true
+freeze_fc: false
 # regularizer
 lambda_: 0.1
 
@@ -35,7 +34,7 @@ full_model: "bn1"
 # full_model: "type2"
 full_weight_dir: ""
 # full_weight_dir: "checkpoints/fmnist_bn.pth"
-full_weight_dir: "/media/kaiyue/2D8A97B87FB4A806/Datasets/heuristic/full_init.pth"
+# full_weight_dir: "/media/kaiyue/2D8A97B87FB4A806/Datasets/heuristic/full_init.pth"
 
 # Simulation dataset configurations
 # test_data_dir : the directory to the testDataset

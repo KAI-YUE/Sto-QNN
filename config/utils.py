@@ -20,13 +20,6 @@ def load_data(config):
     with open(config.train_data_dir, "rb") as fp:
         train_data = pickle.load(fp)
 
-    # with open("/media/kaiyue/2D8A97B87FB4A806/Datasets/user_with_data/iid_map.dat", "rb") as fp:
-    #     user_dataidx_map = pickle.load(fp)
-
-    # user_id = config.user_id
-    # train_data["images"] = train_data["images"][user_dataidx_map[user_id]]
-    # train_data["labels"] = train_data["labels"][user_dataidx_map[user_id]]
-
     return dict(train_data=train_data, test_data=test_data)
 
 def parse_dataset_type(config):

@@ -58,6 +58,8 @@ nn_registry = {
     
     "bn1":            FullPrecisionNet_BN1,
     "bn2":            FullPrecisionNet_BN2,
-    "gn1":              FullPrecisionNet_GN_Type1,
-    "gn2":              FullPrecisionNet_GN_Type2 
+    "gn1":            FullPrecisionNet_GN_Type1,
+    "gn2":            FullPrecisionNet_GN_Type2,
+
+    "plain":         FullPrecisionNet
 }

@@ -162,6 +162,7 @@ def init_bnn_latent_params(model, ref_model, **kwargs):
     if "method" in kwargs:
         method = kwargs["method"]
     else:
+        # method = "plain"
         method = "probability"
         # method = "test" 
 
@@ -198,11 +199,11 @@ def init_bnn_latent_params(model, ref_model, **kwargs):
                 continue
                 
             # normalize the weight
-            ref_w = ref_state_dict[module_name + ".weight"]
-            normalized_w = ref_w.clamp(-0.99, 0.99)    # restrict the weight to (-1,1)
+            # ref_w = ref_state_dict[module_name + ".weight"]
+            # normalized_w = ref_w.clamp(-0.99, 0.99)    # restrict the weight to (-1,1)
             # abs_normalized_w = normalized_w.abs()
 
-            module.weight.latent_param.data = torch.log(-1 + 2/(1 - normalized_w))
+            module.weight.latent_param.data = torch.zeros_like(module.weight.latent_param.data)
 
     else:
         pass
