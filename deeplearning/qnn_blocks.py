@@ -99,6 +99,7 @@ class BinaryConv2d(nn.Conv2d):
         self._init_latent_param()
         self.weight.requires_grad = False
         self.bias.requires_grad = False
+        self.quant_alpha = 0.2
     
     def _init_latent_param(self):
         """Initialize the placeholders for the multinomial distribution paramters.
@@ -115,8 +116,8 @@ class BinaryConv2d(nn.Conv2d):
 
     def forward(self, input):
         # theta = activate_fun(w) = 1/2*tanh(w) + 1/2
-        theta = torch.sigmoid(self.weight.latent_param)
-        mu = 2*theta - 1
+        theta = torch.tanh(self.quant_alpha*self.weight.latent_param)
+        # mu = 2*theta - 1
         # sigma_square = 1 - mu**2
 
         # mu = F.conv2d(input, mu, self.bias,
@@ -127,7 +128,7 @@ class BinaryConv2d(nn.Conv2d):
         # epsilon = torch.randn_like(mu)
         # out = mu + (sigma_square + 0.1).sqrt()*epsilon
 
-        mu = F.conv2d(input, mu, self.bias,
+        mu = F.conv2d(input, theta, self.bias,
                       self.stride, self.padding, self.dilation)
         out = mu
 
@@ -140,6 +141,7 @@ class BinaryLinear(nn.Linear):
         self._init_latent_param()
         self.weight.requires_grad = False
         self.bias.requires_grad = False
+        self.quant_alpha = 0.2
 
     def _init_latent_param(self):
         """Initialize the placeholders for the multinomial distribution paramters.
@@ -156,8 +158,8 @@ class BinaryLinear(nn.Linear):
 
     def forward(self, input):
         # theta = activate_fun(w) 
-        theta = torch.sigmoid(self.weight.latent_param)
-        mu = 2*theta - 1
+        theta = torch.tanh(self.quant_alpha*self.weight.latent_param)
+        # mu = 2*theta - 1
         # sigma_square = 1 - mu**2
 
         # mu = F.linear(input, mu, self.bias)
@@ -166,7 +168,7 @@ class BinaryLinear(nn.Linear):
         # epsilon = torch.randn_like(mu)
         # out = mu + (sigma_square + 0.1).sqrt()*epsilon
 
-        mu = F.linear(input, mu, self.bias)
+        mu = F.linear(input, theta, self.bias)
         out = mu
 
         return out

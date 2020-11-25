@@ -189,7 +189,8 @@ def init_bnn_latent_params(model, ref_model, **kwargs):
             prob_p1 = torch.where(ref_w > 1, p_max, prob_p1)
             prob_p1[idx] = p_min/2 + 0.5*(p_max - p_min/2)*(ref_w[idx] + 1) 
             
-            module.weight.latent_param.data = torch.log(-1 + 1/(1 - prob_p1))
+            prob_p1_by2_minus1 = prob_p1*2 - 1
+            module.weight.latent_param.data = torch.log((1+prob_p1_by2_minus1)/(1-prob_p1_by2_minus1))
     
     elif method == "plain":
         for module_name, module in named_modules:

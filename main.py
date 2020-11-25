@@ -195,9 +195,9 @@ def main():
     elif config.mode == 2:
         model = init_full_model(config, logger)
         
-        state_dict = torch.load("/media/kaiyue/2D8A97B87FB4A806/Datasets/heuristic/full_modified.pth")
-        model.load_state_dict(state_dict)
-        config.total_epoch = 1
+        # state_dict = torch.load("/media/kaiyue/2D8A97B87FB4A806/Datasets/heuristic/full_modified.pth")
+        # model.load_state_dict(state_dict)
+        # config.total_epoch = 1
 
         train_full_model(model, config, logger, record)
 
