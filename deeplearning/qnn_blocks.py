@@ -4,6 +4,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.distributions.normal import Normal
 
+from config.loadconfig import load_config
 #--------------------------------
 # Ternary neural network blocks following the paper 
 # Shayer, Oran, Dan Levi, and Ethan Fetaya. "Learning discrete weights using the local reparameterization trick." 
@@ -99,7 +100,9 @@ class BinaryConv2d(nn.Conv2d):
         self._init_latent_param()
         self.weight.requires_grad = False
         self.bias.requires_grad = False
-        self.quant_alpha = 0.2
+
+        config = load_config()
+        self.k = config.k
     
     def _init_latent_param(self):
         """Initialize the placeholders for the multinomial distribution paramters.
@@ -116,7 +119,7 @@ class BinaryConv2d(nn.Conv2d):
 
     def forward(self, input):
         # theta = activate_fun(w) = 1/2*tanh(w) + 1/2
-        theta = torch.tanh(self.quant_alpha*self.weight.latent_param)
+        theta = torch.tanh(self.k*self.weight.latent_param)
         # mu = 2*theta - 1
         # sigma_square = 1 - mu**2
 
@@ -141,7 +144,9 @@ class BinaryLinear(nn.Linear):
         self._init_latent_param()
         self.weight.requires_grad = False
         self.bias.requires_grad = False
-        self.quant_alpha = 0.2
+
+        config = load_config()
+        self.k = config.k
 
     def _init_latent_param(self):
         """Initialize the placeholders for the multinomial distribution paramters.
@@ -158,7 +163,7 @@ class BinaryLinear(nn.Linear):
 
     def forward(self, input):
         # theta = activate_fun(w) 
-        theta = torch.tanh(self.quant_alpha*self.weight.latent_param)
+        theta = torch.tanh(self.k*self.weight.latent_param)
         # mu = 2*theta - 1
         # sigma_square = 1 - mu**2
 
