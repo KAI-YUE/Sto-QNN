@@ -136,7 +136,6 @@ def test_bnn_accuracy(bnn_model, test_dataset, device, config, logger):
 
         entropy = 0
 
-        k = config.k
         named_modules = bnn_model.named_modules()
         next(named_modules)
         for module_name, module in named_modules:
@@ -146,11 +145,11 @@ def test_bnn_accuracy(bnn_model, test_dataset, device, config, logger):
                 continue
 
             sampled_bnn_state_dict[module_name + ".weight"] = module.weight.latent_param.sign()
-            # prob = torch.sigmoid(module.weight)
+            prob = torch.sigmoid(module.weight)
             # entropy -= torch.sum(prob*torch.log(prob) + (1-prob)*torch.log(1-prob)) 
             
             # rand_variable = torch.rand_like(module.weight.latent_param)
-            # prob_equal_one = (torch.tanh(k*module.weight.latent_param)+1)/2
+            # prob_equal_one = torch.sigmoid(module.weight.latent_param)
             # ones_tensor = torch.ones_like(module.weight.latent_param)
             # zeros_tensor = torch.zeros_like(module.weight.latent_param)
             # sampled_bnn_state_dict[module_name + ".weight"] = torch.where(rand_variable < prob_equal_one, ones_tensor, -ones_tensor)
@@ -186,6 +185,9 @@ def train_loss(model, train_dataset, type_, device="cuda"):
 
 def count_parameters(qnn_model):
     return sum(p.numel() for p in qnn_model.parameters() if p.requires_grad)
+
+def count_latent_parameters(qnn_model):
+    return sum(p.numel() for p in qnn_model.latent_parameters() if p.requires_grad)
 
 def init_record(config):
     record = {}

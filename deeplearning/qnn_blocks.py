@@ -99,7 +99,9 @@ class BinaryConv2d(nn.Conv2d):
         self.latentdim = 2
         self._init_latent_param()
         self.weight.requires_grad = False
-        self.bias.requires_grad = False
+
+        if self.bias is not None:
+            self.bias.requires_grad = False
 
         config = load_config()
         self.k = config.k
@@ -113,7 +115,6 @@ class BinaryConv2d(nn.Conv2d):
     def _apply(self, fn):
         # super(TernaryConv2d, self)._apply(fn)
         self.weight.latent_param.data = fn(self.weight.latent_param.data)
-        self.bias.data = fn(self.bias.data)
 
         return self
 
@@ -132,7 +133,7 @@ class BinaryConv2d(nn.Conv2d):
         # out = mu + (sigma_square + 0.1).sqrt()*epsilon
 
         # input = torch.tanh(self.k*input)
-        mu = F.conv2d(input, theta, self.bias,
+        mu = F.conv2d(input, theta, None,
                       self.stride, self.padding, self.dilation)
         out = mu
 
@@ -144,7 +145,9 @@ class BinaryLinear(nn.Linear):
         self.latentdim = 2
         self._init_latent_param()
         self.weight.requires_grad = False
-        self.bias.requires_grad = False
+
+        if self.bias is not None:
+            self.bias.requires_grad = False
 
         config = load_config()
         self.k = config.k
@@ -175,7 +178,7 @@ class BinaryLinear(nn.Linear):
         # out = mu + (sigma_square + 0.1).sqrt()*epsilon
 
         # input = torch.tanh(self.k*input)
-        mu = F.linear(input, theta, self.bias)
+        mu = F.linear(input, theta, None)
         out = mu
 
         return out

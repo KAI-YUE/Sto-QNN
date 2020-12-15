@@ -10,29 +10,32 @@ mode: 1
 # batch_size:       literal meaning
 # tau:              number of local iterations
 # momentum:         momentum settings for the optimizer
-qnn_model: "binary1"
+# qnn_model: "binary1"
 # qnn_model: "ternary"
 # qnn_model: "tgn1"
 # qnn_model: "binary1"
 # qnn_model: "binary_complete"
 # qnn_model: "ternary_complete"
-total_epoch: 1
+# qnn_model: "blenet"
+qnn_model: "bvgg"
+# qnn_model: "bresnet"
+total_epoch: 5
 batch_size: 200
 # lr: 0.0005
 # lr: 0.1
-lr: 0.05
+lr: 0.01
 momentum: 0.9
 weight_decay: 0.
 freeze_fc: false
 # regularizer
 lambda_: 0.1
-k: 10
+k: 1.5
 
 # full precision model counterpart
-full_model: "bn1"
-# full_model: "gn1"
-# full_model: "type2"
-# full_model: "plain"
+# full_model: "bn1"
+# full_model: "lenet"
+full_model: "vgg"
+# full_model: "resnet"
 full_weight_dir: ""
 # full_weight_dir: "checkpoints/fmnist_bn.pth"
 # full_weight_dir: "/media/kaiyue/2D8A97B87FB4A806/Datasets/heuristic/full_init.pth"
@@ -42,24 +45,24 @@ full_weight_dir: ""
 # train_data_dir: the directory to the trainDataset
 # sample_size:   the size of one sample [height x width\num_of_features]
 # classes:      the number of classes
-test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/test.dat
-train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/train.dat
+# test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/test.dat
+# train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/mnist/train.dat
 # test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/test.dat
 # train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/fmnist/train.dat
-sample_size:
-- 28
-- 28
-channels: 1
-classes: 10
+# sample_size:
+# - 28
+# - 28
+# channels: 1
+# classes: 10
 
 record_dir:     ../This{}.dat
-# test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/cifar-10-python/test.dat
-# train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/cifar-10-python/train.dat
-# sample_size:
-# - 32
-# - 32
-# channels: 3
-# classes: 10
+test_data_dir:  /media/kaiyue/2D8A97B87FB4A806/Datasets/cifar/test.dat
+train_data_dir: /media/kaiyue/2D8A97B87FB4A806/Datasets/cifar/train.dat
+sample_size:
+- 32
+- 32
+channels: 3
+classes: 10
 
 
 # Log configurations

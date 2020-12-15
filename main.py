@@ -182,23 +182,23 @@ def main():
     if config.mode == 0:
         qnn = init_qnn(config, logger)
         train_qnn(qnn, config, logger, record)
+    
     elif config.mode == 1:
         bnn = init_bnn(config, logger)
-
         # bnn_latent_param = torch.load("/media/kaiyue/2D8A97B87FB4A806/Datasets/tmodels/vote10.pth")
         # bnn_latent_param = torch.load("/media/kaiyue/2D8A97B87FB4A806/Datasets/vote.pth")
         # bnn_latent_param = torch.load("bnn.pth")
         # bnn_latent_param = torch.load("/media/kaiyue/2D8A97B87FB4A806/Datasets/mmodels/bnn_modified.pth")
         # bnn.load_latent_param_dict(bnn_latent_param)
-
+        logger.info("weight dimension {:d}".format(count_latent_parameters(bnn)))
         train_bnn(bnn, config, logger, record)
+
     elif config.mode == 2:
         model = init_full_model(config, logger)
         
         # state_dict = torch.load("/media/kaiyue/2D8A97B87FB4A806/Datasets/heuristic/full_modified.pth")
         # model.load_state_dict(state_dict)
         # config.total_epoch = 1
-
         train_full_model(model, config, logger, record)
 
     # save_record(config, record)
