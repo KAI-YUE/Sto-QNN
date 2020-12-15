@@ -6,6 +6,7 @@ import torch.nn as nn
 
 # My libraries
 from deeplearning import nn_registry
+from config.loadconfig import load_config
 
 def init_qnn(config, logger):
     # initialize the qnn_model
@@ -162,14 +163,16 @@ def init_bnn_latent_params(model, ref_model, **kwargs):
     if "method" in kwargs:
         method = kwargs["method"]
     else:
-        # method = "plain"
-        method = "probability"
+        method = "plain"
+        # method = "probability"
         # method = "test" 
 
     ref_state_dict = ref_model.state_dict()
     model.load_state_dict(ref_state_dict)
     named_modules = model.named_modules()
     next(named_modules)
+
+    config = load_config()
 
     if method == "probability":
         for module_name, module in named_modules:
@@ -180,8 +183,8 @@ def init_bnn_latent_params(model, ref_model, **kwargs):
                 
             # normalize the weight
             ref_w = ref_state_dict[module_name + ".weight"]
-            ref_w = ref_w/ref_w.std()
-            # normalized_w = ref_w.clamp(-0.99, 0.99)    # restrict the weight to (-1,1)
+            ref_w = 0.2*ref_w/ref_w.std()
+            ref_w  = ref_w.clamp(-1+1.e-3, 1-1.e-3)    # restrict the weight to (-1,1)
             # abs_normalized_w = normalized_w.abs()
 
             idx = torch.logical_and(ref_w>-1, ref_w<1)
@@ -190,8 +193,11 @@ def init_bnn_latent_params(model, ref_model, **kwargs):
             prob_p1[idx] = p_min/2 + 0.5*(p_max - p_min/2)*(ref_w[idx] + 1) 
             
             prob_p1_by2_minus1 = prob_p1*2 - 1
-            module.weight.latent_param.data = torch.log((1+prob_p1_by2_minus1)/(1-prob_p1_by2_minus1))
-    
+            # module.weight.latent_param.data = (1/config.k)*0.5*torch.log((1+prob_p1_by2_minus1)/(1-prob_p1_by2_minus1))
+            # module.weight.latent_param.data = torch.log((1+prob_p1_by2_minus1)/(1-prob_p1_by2_minus1))
+
+            module.weight.latent_param.data = (1/config.k)*0.5*torch.log((1+ref_w)/(1-ref_w))
+            
     elif method == "plain":
         for module_name, module in named_modules:
             if not hasattr(module, "weight"):
@@ -204,7 +210,7 @@ def init_bnn_latent_params(model, ref_model, **kwargs):
             # normalized_w = ref_w.clamp(-0.99, 0.99)    # restrict the weight to (-1,1)
             # abs_normalized_w = normalized_w.abs()
 
-            module.weight.latent_param.data = torch.zeros_like(module.weight.latent_param.data)
+            module.weight.latent_param.data = torch.randn_like(module.weight.latent_param.data)
 
     else:
         pass

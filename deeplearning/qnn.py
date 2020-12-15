@@ -130,7 +130,8 @@ class BinaryNeuralNet_Complete(StoQNN):
         
         self.fc1 = BinaryLinear(2048, 512)
         self.bn3 = nn.BatchNorm1d(512, track_running_stats=False, affine=False)
-        self.fc2 = BinaryLinear(512, out_dims)
+        # self.fc2 = BinaryLinear(512, out_dims)
+        self.fc2 = nn.Linear(512, out_dims)
 
     def forward(self, x):
         x = x.view(x.shape[0], self.in_channels, self.input_size, self.input_size)

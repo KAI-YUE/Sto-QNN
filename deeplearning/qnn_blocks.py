@@ -131,6 +131,7 @@ class BinaryConv2d(nn.Conv2d):
         # epsilon = torch.randn_like(mu)
         # out = mu + (sigma_square + 0.1).sqrt()*epsilon
 
+        # input = torch.tanh(self.k*input)
         mu = F.conv2d(input, theta, self.bias,
                       self.stride, self.padding, self.dilation)
         out = mu
@@ -173,6 +174,7 @@ class BinaryLinear(nn.Linear):
         # epsilon = torch.randn_like(mu)
         # out = mu + (sigma_square + 0.1).sqrt()*epsilon
 
+        # input = torch.tanh(self.k*input)
         mu = F.linear(input, theta, self.bias)
         out = mu
 
