@@ -19,7 +19,7 @@ class NaiveMLP(nn.Module):
     def forward(self, x):
         x = x.view(x.shape[0], -1)
         
-        out = F.relu(self.bn1(self.fc1(out)))
+        out = F.relu(self.bn1(self.fc1(x)))
         out = F.relu(self.bn2(self.fc2(out)))
         out = self.fc3(out)
         return out
